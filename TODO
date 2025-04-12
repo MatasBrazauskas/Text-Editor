@@ -24,3 +24,7 @@ Control class:
 Used to control the class and file work flow. It will be used to 'lend' information to other classes - text and command line areas. Those classes will only get the current text
 inputted into a keyword and those classes will have to parse and use the information accordingly.
 
+Text area:
+I need to load the files that the user has now opened. I need to use the SDL_TTF library use the different fonts to display text on screen. I also need to implament a whole nother 
+class to store the font texture, whole text editor color that would need to be read from a file and easily accsed.
+
