@@ -5,8 +5,22 @@ create the steps for progress of a project, roadmap.
 orgranize features.
 
 Erros in the code:
+
 I need to check what system the used has : Windows or Linux/macOS. Then I need to run the gcc compiler on files, store information in a hashmap what stores key as file name and 
 value as array of stucts. Error struct contains:
 * size_t row, size_t column, char[] errorMess
 I need to use the -o flag in the gcc compiler for fast compilation time for all of a files in the project. Because if I change one part of a file, the errors could fix itself.
+I will use the CMAKE file, that I will need to update every time I add files to the current project, so that I would get all errors in the build. Would need to use the '-fanalyzer'
+flag on gcc compiler. I would display:
+errors, warnings , notes and analyzer features.
+
+Command line area:
+I want to use the VIM motions and a command line command to interact with the text editor.
+
+File area:
+I just need to display or update the file area if a user interacts with the files in a directory. Rerender then needed.
+
+Control class:
+Used to control the class and file work flow. It will be used to 'lend' information to other classes - text and command line areas. Those classes will only get the current text
+inputted into a keyword and those classes will have to parse and use the information accordingly.
 
