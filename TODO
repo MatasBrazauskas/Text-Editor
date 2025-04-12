@@ -3,3 +3,10 @@ TODO
 organize the class and file diagram for better future development: https://app.diagrams.net/#G1ugAFxZv7-sgiCDt967-2PoCORqRixp9M#%7B%22pageId%22%3A%22C5RBs43oDa-KdzZeNtuy%22%7D
 create the steps for progress of a project, roadmap.
 orgranize features.
+
+Erros in the code:
+I need to check what system the used has : Windows or Linux/macOS. Then I need to run the gcc compiler on files, store information in a hashmap what stores key as file name and 
+value as array of stucts. Error struct contains:
+* size_t row, size_t column, char[] errorMess
+I need to use the -o flag in the gcc compiler for fast compilation time for all of a files in the project. Because if I change one part of a file, the errors could fix itself.
+
