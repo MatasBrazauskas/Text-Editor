@@ -25,6 +25,18 @@ Used to control the class and file work flow. It will be used to 'lend' informat
 inputted into a keyword and those classes will have to parse and use the information accordingly.
 
 Text area:
+I need to open a folder or a file that I will be using. ':e filename.extension'. Then I need to append the text to the file and a text editor.
 I need to load the files that the user has now opened. I need to use the SDL_TTF library use the different fonts to display text on screen. I also need to implament a whole nother 
 class to store the font texture, whole text editor color that would need to be read from a file and easily accsed.
+
+Syntax highlighting:
+I need to create a keyword array were those keywords will be colored different color. Also would be useful to add objects and functions to the list as well.
+
+
+ROAD MAP:
+-load colors from background and seperate the different areas.
+-create starting functionality with the Controller, text area and command line area.
+-open file in a editor and display text, display cursor position.
+-append text to a text file with VIM motion and save it.
+
 
