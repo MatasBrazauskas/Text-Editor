@@ -35,8 +35,15 @@ I need to create a keyword array were those keywords will be colored different c
 
 ROAD MAP:
 -load colors from background and seperate the different areas.
+-open static file in a editor and render text. Need to implament renderer for font and text, with base command line integration support.
 -create starting functionality with the Controller, text area and command line area.
--open file in a editor and display text, display cursor position.
--append text to a text file with VIM motion and save it.
+- add ability to change modes between insert, view, command line, text. Make other area disabled, with the current or new enabled.
+-append text to a text file with VIM motion and save it. Futher command line and VIM motion support.
+-display cursor, and move with it.
+-display the files in the file area. Display the current folder that we are in.
+-show the current files name on the top of a screen with all the active files.
+-support multiple files loaded at once.
+-display error messages to show in what file, what row and column does the error accure.
+
 
 
