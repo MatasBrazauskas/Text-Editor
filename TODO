@@ -36,7 +36,9 @@ I need to create a keyword array were those keywords will be colored different c
 ROAD MAP:
 
 -load colors from background and seperate the different areas.
-    -For now use the hard coded colors. In the future would be nice to read colors from a file or a data base SQLite.
+    -For now use the hard coded colors for background
+    -create functionality to make text editor fullscreen, minimize, close it
+    -add functionality to change text, error, file and command line areas depending on a windows size
 
 -open static file in a editor and render text. 
     -Need to implament renderer for font and text, with base command line integration support. 
@@ -62,6 +64,7 @@ ROAD MAP:
 
 !!! futher implementation then the core of a text editor is some what completed:
 
+-read colors from a data base SQLite.
 -show the current files name on the top of a screen with all the active files.
 -support multiple files loaded at once.
 -display error messages to show in what file, what row and column does the error accure.
