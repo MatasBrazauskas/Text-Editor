@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CommandLineArea.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="ErrorArea.cpp" />
     <ClCompile Include="main.cpp" />
@@ -142,6 +143,7 @@
     <None Include="SDL2_ttf.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommandLineArea.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="ErrorArea.h" />
   </ItemGroup>
