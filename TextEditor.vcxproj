@@ -134,6 +134,7 @@
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="ErrorArea.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TextArea.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2 Template.aps" />
@@ -146,6 +147,7 @@
     <ClInclude Include="CommandLineArea.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="ErrorArea.h" />
+    <ClInclude Include="TextArea.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
