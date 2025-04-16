@@ -1,5 +1,5 @@
 #pragma once
-
+#include "SDL.h"
 #include <vector>
 
 class FileArea
@@ -7,8 +7,9 @@ class FileArea
 public:
 	FileArea();
 	~FileArea();
-private:
 
-	size_t strarting_X, starting_Y, ending_X, ending_Y;
+	size_t starting_X, starting_Y, ending_X, ending_Y;
 	std::vector<char*> loadedFilesPath;
+
+	void DisplayFileArea(SDL_Renderer* renderer, SDL_Color color);
 };

@@ -9,18 +9,23 @@
 class Controller
 {
 public:
-	Controller();
+	Controller(SDL_Renderer* renderer);
 	~Controller();
 
-private:
+	bool RunLoop();
+	void DistributeCommands();
+
+	enum class mode { NORMAL, INSERT, VISUAL, COMMAND };
+	enum class currentActive { TEXT_AREA, COMMAND_LINE_AREA };
+
+	bool runLoop = true;
+	mode currentMode = mode::NORMAL;
+
+	SDL_Renderer* renderer = nullptr;
+
 	ErrorArea* errorArea = nullptr;
 	FileArea* fileArea = nullptr;
 	TextArea* textArea = nullptr;
 	FontAndColors* fontAndColors = nullptr;
 	CommandLineArea* commandLineArea = nullptr;
-
-	enum class mode {NORMAL, INSET, VISUAL, COMMAND };
-	enum class currentActive {TEXT_AREA, COMMAND_LINE_AREA};
-
-
 };

@@ -1,5 +1,5 @@
 #pragma once
-
+#include "SDL.h"
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -10,7 +10,6 @@ public:
 	ErrorArea();
 	~ErrorArea();
 
-private:
 	struct errorStruct
 	{
 		errorStruct(size_t r, size_t c, const std::string& e) : row(r), column(c), errorMess(e) {}
@@ -19,7 +18,9 @@ private:
 		std::string errorMess;
 	};
 
-	size_t strarting_X, starting_Y, ending_X, ending_Y;
+	size_t starting_X, starting_Y, ending_X, ending_Y;
 	enum class errorKeywords { ERROR, WARNING, NOTE, ANALYZER};
 	std::unordered_map<std::string, std::vector<errorStruct>> errorMap;
+
+	void DisplayFileArea(SDL_Renderer* renderer, SDL_Color color);
 };

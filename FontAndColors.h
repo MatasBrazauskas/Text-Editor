@@ -9,10 +9,9 @@ public:
 	FontAndColors();
 	~FontAndColors();
 
-	enum class Colors {BACKGROUND_COLOR, TEXT_COLOR};
-private:
-	TTF_Font* TTFont = nullptr;
-	SDL_Color editorColors[2];
+	enum class Colors { BACKGROUND_TEXT_AREA_COLOR, BACKGROUND_FILE_AREA_COLOR, BACKGROUND_COMMAND_LINE_AREA_COLOR, BACKGROUND_ERROR_AREA_COLOR, TEXT_COLOR };
+	static SDL_Color GetColor(Colors color);
+	static SDL_Color editorColors[5];
 
-	SDL_Color GetColor(Colors color);
+	TTF_Font* TTFont = nullptr;
 };

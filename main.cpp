@@ -44,26 +44,19 @@ int main(int argc, char** argv)
         return 1;
     }
 
-	// Set the draw color to blue (RGB)
-    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-
-    bool quit = false;
-    SDL_Event e;
+	// Set the draw color to white (RGB)
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
     //Clear the window with selected color
     SDL_RenderClear(renderer);
     //Updates the window with selected color
     SDL_RenderPresent(renderer);
 
-	Controller* controller = new Controller();
+	Controller* controller = new Controller(renderer);
 
     //Main loop
-    while (!quit) {
-        while (SDL_PollEvent(&e) != 0) {
-            if (e.type == SDL_QUIT) {
-                quit = true;
-            }
-        }
+    while (controller->RunLoop()) {
+        controller->DistributeCommands();
     }
 
     //Clean up
