@@ -153,6 +153,9 @@
     <ClInclude Include="FontAndColors.h" />
     <ClInclude Include="TextArea.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="idk.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

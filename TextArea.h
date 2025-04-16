@@ -1,5 +1,6 @@
 #pragma once
 #include "SDL.h"
+#include "SDL_ttf.h"
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -23,5 +24,6 @@ public:
 
 	size_t cursorRow, cursorColumn;
 
-	void DisplayFileArea(SDL_Renderer* renderer, SDL_Color color);
+	void DisplayFileArea(SDL_Renderer* renderer, SDL_Color backgroundColor, SDL_Color textColor, TTF_Font* font);
+	void ReadCurrentFile();
 };

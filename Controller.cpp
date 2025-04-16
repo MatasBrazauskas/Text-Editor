@@ -14,7 +14,7 @@ Controller::Controller(SDL_Renderer* renderer)
 
 	errorArea->DisplayFileArea(renderer, FontAndColors::GetColor(FontAndColors::Colors::BACKGROUND_ERROR_AREA_COLOR));
     fileArea->DisplayFileArea(renderer, FontAndColors::GetColor(FontAndColors::Colors::BACKGROUND_FILE_AREA_COLOR));
-	textArea->DisplayFileArea(renderer, FontAndColors::GetColor(FontAndColors::Colors::BACKGROUND_TEXT_AREA_COLOR));
+	textArea->DisplayFileArea(renderer, FontAndColors::GetColor(FontAndColors::Colors::BACKGROUND_TEXT_AREA_COLOR), FontAndColors::GetColor(FontAndColors::Colors::TEXT_COLOR), fontAndColors->TTFont);
     commandLineArea->DisplayFileArea(renderer, FontAndColors::GetColor(FontAndColors::Colors::BACKGROUND_COMMAND_LINE_AREA_COLOR));
 }
 
@@ -52,7 +52,7 @@ void Controller::DistributeCommands()
             break;
         }
     }
-	std::cout << (int)currentMode << std::endl;
+	//std::cout << (int)currentMode << std::endl;
 }
 
 bool Controller::RunLoop()
