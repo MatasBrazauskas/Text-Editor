@@ -36,6 +36,9 @@
     <ClCompile Include="FileArea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FontAndColors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2 Template.aps" />
@@ -58,6 +61,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FileArea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FontAndColors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

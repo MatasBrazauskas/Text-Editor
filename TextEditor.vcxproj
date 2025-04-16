@@ -134,6 +134,7 @@
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="ErrorArea.cpp" />
     <ClCompile Include="FileArea.cpp" />
+    <ClCompile Include="FontAndColors.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TextArea.cpp" />
   </ItemGroup>
@@ -149,6 +150,7 @@
     <ClInclude Include="Controller.h" />
     <ClInclude Include="ErrorArea.h" />
     <ClInclude Include="FileArea.h" />
+    <ClInclude Include="FontAndColors.h" />
     <ClInclude Include="TextArea.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
