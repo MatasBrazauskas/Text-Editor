@@ -19,4 +19,7 @@ void FileArea::DisplayFileArea(SDL_Renderer* renderer, SDL_Color color)
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 	SDL_RenderFillRect(renderer, &rect);
 	SDL_RenderPresent(renderer);
+
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White border
+	SDL_RenderDrawRect(renderer, &rect);
 }

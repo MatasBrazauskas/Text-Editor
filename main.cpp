@@ -45,7 +45,7 @@ int main(int argc, char** argv)
     }
 
 	// Set the draw color to white (RGB)
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
 
     //Clear the window with selected color
     SDL_RenderClear(renderer);
