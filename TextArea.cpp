@@ -12,8 +12,11 @@ TextArea::TextArea()
 
 	cursorRow = 0;
 	cursorColumn = 0;
+
 	cursorWidht = 3;
-	cursor_Height = 24;
+
+	cursorX = CXOffset;
+	cursorY = CYOffset;
 
 	currentFileName = "idk.txt";
 	ReadCurrentFile();
@@ -24,9 +27,11 @@ TextArea::~TextArea()
 	// Destructor implementation
 }
 
-void TextArea::DisplayFileArea(SDL_Renderer* renderer, SDL_Color backgroundColor, SDL_Color textColor, TTF_Font* font)
+void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 {
+	
     SDL_Rect rect = { (int)starting_X, (int)starting_Y, (int)(ending_X - starting_X), (int)(ending_Y - starting_Y) };
+	SDL_Color backgroundColor = colors->GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR);
     SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
     SDL_RenderFillRect(renderer, &rect);
 
@@ -43,12 +48,12 @@ void TextArea::DisplayFileArea(SDL_Renderer* renderer, SDL_Color backgroundColor
 		if (displayText.find('\n') != std::string::npos)
 			displayText.replace(displayText.find('\n'), 1," ");
 
-        SDL_Surface* surface = TTF_RenderText_Blended(font, displayText.c_str(), textColor);
+        SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, displayText.c_str(), colors->GetColor(FontAndColors::Colors::TEXT_COLOR));
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 
 		if (surface)
 		{
-			SDL_Rect textRect = { (int)starting_X + 10, (int)starting_Y + 10 + yPos, (int)surface->w, (int)surface->h };
+			SDL_Rect textRect = { (int)starting_X + CXOffset, (int)starting_Y + CYOffset + yPos, (int)surface->w, (int)surface->h };
 
 			SDL_RenderCopy(renderer, texture, nullptr, &textRect);
 			SDL_FreeSurface(surface);
@@ -83,32 +88,57 @@ void TextArea::WriteIntoCurrentFile()
 	});
 }
 
-void TextArea::InsertNearTheCursor(const char letter)
+void TextArea::InsertNearTheCursor(FontAndColors* color, const char letter)
 {
-	//std::string text = fileText.at(currentFileName).text.at(cursorRow);
-	if ((int)letter != 0) {
+	if (31 < (int)letter && (int)letter < 128) {
 		fileText.at(currentFileName).text.at(cursorRow).insert(fileText.at(currentFileName).text.at(cursorRow).begin() + cursorColumn, letter);
 		cursorColumn++;
+		int x, temp;
+		TTF_SizeText(color->TTFont, std::string(1, letter).c_str(), &x, &temp);
+		cursorX += x;
 	}
-
-//	WriteIntoCurrentFile();
 }
 
-void TextArea::DeleteCurrentLetter()
+void TextArea::DeleteCurrentLetter(FontAndColors* color)
 {
-	fileText[currentFileName].text[cursorRow].erase(cursorColumn, 1);
-}
-
-void TextArea::DisplayCursor(SDL_Renderer *renderer)
-{
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-	for (size_t i = 0; i < cursor_Height; i++)
+	if (cursorColumn > 0)
 	{
-		for (size_t j = 0; j < cursorWidht; j++)
-		{
-			SDL_RenderDrawPoint(renderer, starting_X + cursorColumn + j, starting_Y + cursor_Height + i);
-		}
+		int x, temp;
+		cursorColumn--;
+		TTF_SizeUTF8(color->TTFont, std::string(1, fileText.at(currentFileName).text.at(cursorRow)[cursorColumn]).c_str(), &x, &temp);
+		fileText.at(currentFileName).text.at(cursorRow).erase(cursorColumn, 1);
+		cursorX -= x;
 	}
-	SDL_RenderPresent(renderer);	
+}
+
+void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int displayMode)
+{
+	switch (displayMode)
+	{
+	case 1:
+	case 3:
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+		for (size_t i = 0; i < colors->CFontHeight; i++)
+		{
+			for (size_t j = 0; j < cursorWidht; j++)
+			{
+				//SDL_RenderDrawPoint(renderer, starting_X + ((cursorColumn) * colors->CFontHeight/2) + j, starting_Y + ((cursorRow + 1) * colors->CFontHeight/2) + i);
+				SDL_RenderDrawPoint(renderer, starting_X + cursorX + j, starting_Y + cursorY + i);
+			}
+		}
+		break;
+	/*case 0:
+	case 2:
+		for (size_t i = 0; i < cursor_Height; i++)
+		{
+			for (size_t j = 0; j < cursorWidht * 10; j++)
+			{
+				SDL_RenderDrawPoint(renderer, starting_X + cursorColumn + j, starting_Y + cursorRow + i);
+			}
+		}
+		break;*/
+	}
+
+	SDL_RenderPresent(renderer);
 }

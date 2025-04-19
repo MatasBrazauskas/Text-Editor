@@ -1,6 +1,7 @@
 #pragma once
 #include "SDL.h"
-#include "SDL_ttf.h"
+//#include "SDL_ttf.h"
+#include "FontAndColors.h"
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -24,14 +25,17 @@ public:
 
 	size_t cursorRow, cursorColumn;
 	size_t cursorWidht, cursor_Height;
+	size_t cursorX = 12, cursorY = 12;
 
-	void DisplayFileArea(SDL_Renderer* renderer, SDL_Color backgroundColor, SDL_Color textColor, TTF_Font* font);
+	const int CXOffset = 10, CYOffset = 10;
+
+	void DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors);
 
 	void ReadCurrentFile();
 	void WriteIntoCurrentFile();
 
-	void InsertNearTheCursor(const char letter);
-	void DeleteCurrentLetter();
+	void InsertNearTheCursor(FontAndColors* color, const char letter);
+	void DeleteCurrentLetter(FontAndColors* color);
 
-	void DisplayCursor(SDL_Renderer *renderer);
+	void DisplayCursor(SDL_Renderer* renderer, FontAndColors* colors, int displayMode);
 };

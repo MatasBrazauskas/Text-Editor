@@ -3,7 +3,7 @@
 #include "ErrorArea.h"
 #include "FileArea.h"
 #include "TextArea.h"
-#include "FontAndColors.h"
+//#include "FontAndColors.h"
 #include "CommandLineArea.h"
 
 class Controller

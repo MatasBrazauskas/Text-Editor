@@ -1,4 +1,5 @@
 #include "CommandLineArea.h"
+#include "FontAndColors.h"
 
 CommandLineArea::CommandLineArea()
 {
@@ -13,10 +14,14 @@ CommandLineArea::~CommandLineArea()
 	// Destructor implementation
 }
 
-void CommandLineArea::DisplayFileArea(SDL_Renderer* renderer, SDL_Color color)
+void CommandLineArea::DisplayFileArea(SDL_Renderer* renderer, FontAndColors* color)
 {
 	SDL_Rect rect = { (int)starting_X, (int)starting_Y, (int)(ending_X - starting_X), (int)(ending_Y - starting_Y) };
-	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+	SDL_SetRenderDrawColor(renderer, 
+		color->GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR).r, 
+		color->GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR).g, 
+		color->GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR).b,
+		color->GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR).a);
 	SDL_RenderFillRect(renderer, &rect);
 	//SDL_RenderPresent(renderer);
 

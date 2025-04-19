@@ -1,5 +1,6 @@
 #pragma once
 #include "SDL.h"
+#include "FontAndColors.h"
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -22,5 +23,5 @@ public:
 	enum class errorKeywords { ERROR, WARNING, NOTE, ANALYZER};
 	std::unordered_map<std::string, std::vector<errorStruct>> errorMap;
 
-	void DisplayFileArea(SDL_Renderer* renderer, SDL_Color color);
+	void DisplayFileArea(SDL_Renderer* renderer, FontAndColors* color);
 };

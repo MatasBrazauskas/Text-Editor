@@ -1,5 +1,6 @@
 #pragma once
 #include "SDL.h"
+#include "FontAndColors.h"
 #include <vector>
 
 class FileArea
@@ -11,5 +12,5 @@ public:
 	size_t starting_X, starting_Y, ending_X, ending_Y;
 	std::vector<char*> loadedFilesPath;
 
-	void DisplayFileArea(SDL_Renderer* renderer, SDL_Color color);
+	void DisplayFileArea(SDL_Renderer* renderer, FontAndColors* color);
 };

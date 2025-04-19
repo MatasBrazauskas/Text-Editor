@@ -1,5 +1,6 @@
 #pragma once
 #include "SDL.h"
+#include "FontAndColors.h"
 #include <vector>
 #include <string>
 
@@ -13,5 +14,5 @@ public:
 	std::vector<std::string> commandLineMessage;
 	std::string currentCommand;
 
-	void DisplayFileArea(SDL_Renderer* renderer, SDL_Color color);
+	void DisplayFileArea(SDL_Renderer* renderer, FontAndColors* color);
 };

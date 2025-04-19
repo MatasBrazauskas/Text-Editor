@@ -12,11 +12,10 @@ Controller::Controller(SDL_Renderer* renderer)
 
     this->renderer = renderer;
 
-	errorArea->DisplayFileArea(renderer, FontAndColors::GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR));
-    fileArea->DisplayFileArea(renderer, FontAndColors::GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR));
-    textArea->DisplayFileArea(renderer, FontAndColors::GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR), FontAndColors::GetColor(FontAndColors::Colors::TEXT_COLOR), fontAndColors->TTFont);
-    textArea->DisplayCursor(renderer);
-    commandLineArea->DisplayFileArea(renderer, FontAndColors::GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR));
+	errorArea->DisplayFileArea(renderer, fontAndColors);
+    fileArea->DisplayFileArea(renderer, fontAndColors);
+    textArea->DisplayTextArea(renderer, fontAndColors);
+    commandLineArea->DisplayFileArea(renderer, fontAndColors);
 }
 
 Controller::~Controller()
@@ -27,57 +26,67 @@ Controller::~Controller()
 void Controller::DistributeCommands()
 {
     SDL_Event e;
+    bool skipNextTextInput = false;
     while (SDL_PollEvent(&e) != 0)
     {
-        if(e.type == SDL_QUIT)
-            runLoop = false;  // Close the window
-        if(e.key.keysym.sym == SDLK_ESCAPE)
-            currentMode = mode::NORMAL;
+        if (e.type == SDL_QUIT) // Close window
+            runLoop = false;
 
-        /*case SDL_KEYDOWN:
-            // Check if SHIFT key is pressed for ':' key
-            if (e.key.keysym.sym == SDLK_SEMICOLON && (e.key.keysym.mod & KMOD_SHIFT))
-            {
-                currentMode = mode::COMMAND;  // Switch to COMMAND mode on ':'
-            }
-            // Handle other key inputs
-            switch (e.key.keysym.sym)
-            {
-            case SDLK_ESCAPE: currentMode = mode::NORMAL; break;  // Switch to NORMAL mode on ESC
-            case SDLK_i:
-            case SDLK_a:
-            case SDLK_o: currentMode = mode::INSERT; break; // Switch to INSERT mode for 'i', 'a', or 'o'
-            case SDLK_v: currentMode = mode::VISUAL; break;  // Switch to VISUAL mode for 'v'
-            }
-            break;
-        }*/
-
-        switch ((int)currentMode)
+        if (e.type == SDL_KEYDOWN)
         {
-			case (int)mode::INSERT:
-				if (e.type == SDL_KEYDOWN)
-				{
-					textArea->InsertNearTheCursor(e.key.keysym.sym);
-					std::cout << "Need to insert: " << e.key.keysym.sym << '\n';
-					textArea->DisplayFileArea(renderer, FontAndColors::GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR), FontAndColors::GetColor(FontAndColors::Colors::TEXT_COLOR), fontAndColors->TTFont);
-				}
+            if (e.key.keysym.sym == SDLK_ESCAPE) // Switch modes
+                currentMode = mode::NORMAL;
+
+            switch ((int)currentMode)
+            {
+            case (int)mode::INSERT:
+                if (e.key.keysym.sym == SDLK_BACKSPACE)
+                {
+                    textArea->DeleteCurrentLetter(fontAndColors); // Delete current cursor position
+                }
+                break;
+
             case (int)mode::NORMAL:
                 if (e.key.keysym.sym == SDLK_SEMICOLON && (e.key.keysym.mod & KMOD_SHIFT))
                 {
-                    currentMode = mode::COMMAND;  // Switch to COMMAND mode on ':'
+                    currentMode = mode::COMMAND;
                 }
-                // Handle other key inputs
-                switch (e.key.keysym.sym)
+                else
                 {
-					case SDLK_i: currentMode = mode::INSERT; break;
-                    case SDLK_a: currentMode = mode::INSERT; textArea->cursorColumn++; break;
-					case SDLK_o: currentMode = mode::INSERT; break; // Switch to INSERT mode for 'i', 'a', or 'o'
-					case SDLK_v: currentMode = mode::VISUAL; break;  // Switch to VISUAL mode for 'v'
-					}
+                    switch (e.key.keysym.sym)
+                    {
+					case SDLK_i: // Switch to insert mode
+                        currentMode = mode::INSERT;
+                        skipNextTextInput = true;
+                        break;
+                    case SDLK_a: 
+						currentMode = mode::INSERT;
+                        skipNextTextInput = true;
+                        break;
+                    case SDLK_o:
+						currentMode = mode::INSERT;
+                        skipNextTextInput = true;
+						break;
+					case SDLK_v: // Switch to visual mode
+                        currentMode = mode::VISUAL;
+                        break;
+                    }
+                }
                 break;
+            }
+        }
+        else if (e.type == SDL_TEXTINPUT && currentMode == mode::INSERT)
+        {
+            if (skipNextTextInput) {
+                skipNextTextInput = false;
+                continue;
+            }
+            textArea->InsertNearTheCursor(fontAndColors, e.text.text[0]); // Get actual typed character
         }
     }
-    textArea->DisplayCursor(renderer);
+    //Temp display of a text area
+	textArea->DisplayTextArea(renderer, fontAndColors);
+    textArea->DisplayCursor(renderer, fontAndColors, (int)currentMode);
 	std::cout << (int)currentMode << std::endl;
 }
 
