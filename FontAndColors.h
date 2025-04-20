@@ -9,9 +9,9 @@ public:
 	FontAndColors();
 	~FontAndColors();
 
-	enum class Colors { BACKGROUND_AREA_COLOR, TEXT_COLOR };
+	enum class Colors { BACKGROUND_AREA_COLOR, TEXT_COLOR, OPPOSITE_TEXT_COLOR };
 	SDL_Color GetColor(Colors color);
-	SDL_Color editorColors[2];
+	SDL_Color editorColors[3];
 
 	const int CFontHeight = 24;
 

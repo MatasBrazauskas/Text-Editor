@@ -13,7 +13,7 @@ TextArea::TextArea()
 	cursorRow = 0;
 	cursorColumn = 0;
 
-	cursorWidht = 3;
+	cursorWidht = 2;
 
 	cursorX = CXOffset;
 	cursorY = CYOffset;
@@ -40,15 +40,15 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 
     int yPos = 0;
 
-    for (const std::string& line : fileText[currentFileName].text) {
-        std::string displayText = line.empty() ? " " : line;
+    for (std::string& line : fileText[currentFileName].text) {
+		if (line.empty())
+			line = " ";
+		if (line.find((char)9) != std::string::npos)
+			line.replace(line.find('\t'), 1, "    ");
+		if (line.find('\n') != std::string::npos)
+			line.replace(line.find('\n'), 1," ");
 
-		if (displayText.find('\t') != std::string::npos)
-			displayText.replace(displayText.find('\t'), 1, "    ");
-		if (displayText.find('\n') != std::string::npos)
-			displayText.replace(displayText.find('\n'), 1," ");
-
-        SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, displayText.c_str(), colors->GetColor(FontAndColors::Colors::TEXT_COLOR));
+        SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, line.c_str(), colors->GetColor(FontAndColors::Colors::TEXT_COLOR));
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 
 		if (surface)
@@ -84,7 +84,7 @@ void TextArea::WriteIntoCurrentFile()
 
 	std::for_each(fileText.at(currentFileName).text.begin(), fileText.at(currentFileName).text.end(), [&writer](const std::string i)
 	{
-			writer << i;// << '\n';
+			writer << i << '\n';
 	});
 }
 
@@ -93,8 +93,8 @@ void TextArea::InsertNearTheCursor(FontAndColors* color, const char letter)
 	if (31 < (int)letter && (int)letter < 128) {
 		fileText.at(currentFileName).text.at(cursorRow).insert(fileText.at(currentFileName).text.at(cursorRow).begin() + cursorColumn, letter);
 		cursorColumn++;
-		int x, temp;
-		TTF_SizeText(color->TTFont, std::string(1, letter).c_str(), &x, &temp);
+		int x, y;
+		TTF_SizeText(color->TTFont, std::string(1, letter).c_str(), &x, &y);
 		cursorX += x;
 	}
 }
@@ -103,9 +103,9 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 {
 	if (cursorColumn > 0)
 	{
-		int x, temp;
+		int x, y;
 		cursorColumn--;
-		TTF_SizeUTF8(color->TTFont, std::string(1, fileText.at(currentFileName).text.at(cursorRow)[cursorColumn]).c_str(), &x, &temp);
+		TTF_SizeUTF8(color->TTFont, std::string(1, fileText.at(currentFileName).text.at(cursorRow)[cursorColumn]).c_str(), &x, &y);
 		fileText.at(currentFileName).text.at(cursorRow).erase(cursorColumn, 1);
 		cursorX -= x;
 	}
@@ -115,30 +115,84 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int 
 {
 	switch (displayMode)
 	{
-	case 1:
-	case 3:
+	case 1: case 3:
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
 		for (size_t i = 0; i < colors->CFontHeight; i++)
 		{
 			for (size_t j = 0; j < cursorWidht; j++)
 			{
-				//SDL_RenderDrawPoint(renderer, starting_X + ((cursorColumn) * colors->CFontHeight/2) + j, starting_Y + ((cursorRow + 1) * colors->CFontHeight/2) + i);
 				SDL_RenderDrawPoint(renderer, starting_X + cursorX + j, starting_Y + cursorY + i);
 			}
 		}
 		break;
-	/*case 0:
-	case 2:
-		for (size_t i = 0; i < cursor_Height; i++)
+	case 0: case 2:
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		int x, y;
+		char currentLetter = fileText.at(currentFileName).text.at(cursorRow)[cursorColumn];
+		if (currentLetter == '\0')
 		{
-			for (size_t j = 0; j < cursorWidht * 10; j++)
+			currentLetter = ' ';
+		}
+		TTF_SizeUTF8(colors->TTFont, std::string(1, currentLetter).c_str(), &x, &y);
+
+		for (size_t i = 0; i < colors->CFontHeight; i++)
+		{
+			for (size_t j = 0; j < x; j++)
 			{
-				SDL_RenderDrawPoint(renderer, starting_X + cursorColumn + j, starting_Y + cursorRow + i);
+				SDL_RenderDrawPoint(renderer, starting_X + cursorX + j, starting_Y + cursorY + i);
 			}
 		}
-		break;*/
+
+		SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, std::string(1, currentLetter).c_str(), colors->GetColor(FontAndColors::Colors::OPPOSITE_TEXT_COLOR));
+		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+		if (surface)
+		{
+			SDL_Rect textRect = { (int)starting_X + cursorX, (int)starting_Y + cursorY, (int)surface->w, (int)surface->h };
+
+			SDL_RenderCopy(renderer, texture, nullptr, &textRect);
+			SDL_FreeSurface(surface);
+		}
+
+		break;
 	}
 
+
 	SDL_RenderPresent(renderer);
+}
+
+void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_offset)
+{
+	int x, y;
+	TTF_SizeUTF8(color->TTFont, std::string(1, fileText.at(currentFileName).text.at(cursorRow)[cursorColumn]).c_str(), &x, &y);
+	size_t currentLineLength = fileText.at(currentFileName).text.at(cursorRow).length();
+
+	if (x_offset != 0 && cursorColumn + x_offset >= 0 && cursorColumn + x_offset < currentLineLength)
+	{
+		if (x_offset == -1) {
+			TTF_SizeUTF8(color->TTFont, std::string(1, fileText.at(currentFileName).text.at(cursorRow)[cursorColumn - 1]).c_str(), &x, &y);
+			cursorX -= x;
+			cursorColumn--;
+		}
+		else if (x_offset == 1) {
+			cursorX += x;
+			cursorColumn++;
+		}
+	}
+	else if (y_offset != 0 && cursorRow + y_offset < fileText.at(currentFileName).text.size() && cursorRow + y_offset >= 0)
+	{
+		cursorRow += y_offset;
+		cursorY += (y_offset * 30);
+
+		size_t length = fileText.at(currentFileName).text.at(cursorRow).length();
+
+		if (length <= cursorColumn)
+		{
+			size_t newStringLength = fileText.at(currentFileName).text.at(cursorRow).length() - 1;
+			TTF_SizeUTF8(color->TTFont, fileText.at(currentFileName).text.at(cursorRow).substr(0, newStringLength).c_str(), &x, &y);
+			cursorX = CXOffset + x;
+			cursorColumn = newStringLength;
+		}
+	}
 }

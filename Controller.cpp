@@ -27,6 +27,7 @@ void Controller::DistributeCommands()
 {
     SDL_Event e;
     bool skipNextTextInput = false;
+    bool updateTextArea = false;
     while (SDL_PollEvent(&e) != 0)
     {
         if (e.type == SDL_QUIT) // Close window
@@ -34,6 +35,7 @@ void Controller::DistributeCommands()
 
         if (e.type == SDL_KEYDOWN)
         {
+            updateTextArea = true;
             if (e.key.keysym.sym == SDLK_ESCAPE) // Switch modes
                 currentMode = mode::NORMAL;
 
@@ -55,20 +57,32 @@ void Controller::DistributeCommands()
                 {
                     switch (e.key.keysym.sym)
                     {
-					case SDLK_i: // Switch to insert mode
+                    case SDLK_i: // Switch to insert mode
                         currentMode = mode::INSERT;
                         skipNextTextInput = true;
                         break;
-                    case SDLK_a: 
-						currentMode = mode::INSERT;
+                    case SDLK_a:
+                        currentMode = mode::INSERT;
                         skipNextTextInput = true;
                         break;
                     case SDLK_o:
-						currentMode = mode::INSERT;
+                        currentMode = mode::INSERT;
                         skipNextTextInput = true;
-						break;
-					case SDLK_v: // Switch to visual mode
+                        break;
+                    case SDLK_v: // Switch to visual mode
                         currentMode = mode::VISUAL;
+                        break;
+                    case SDLK_l:
+                        textArea->MoveCursor(fontAndColors, 1, 0); // Move to left
+                        break;
+                    case SDLK_h:
+                        textArea->MoveCursor(fontAndColors, -1, 0); // Move to left
+                        break;
+                    case SDLK_k:
+                        textArea->MoveCursor(fontAndColors, 0, -1); 
+                        break;
+                    case SDLK_j:
+                        textArea->MoveCursor(fontAndColors, 0, 1); 
                         break;
                     }
                 }
@@ -85,9 +99,12 @@ void Controller::DistributeCommands()
         }
     }
     //Temp display of a text area
-	textArea->DisplayTextArea(renderer, fontAndColors);
-    textArea->DisplayCursor(renderer, fontAndColors, (int)currentMode);
-	std::cout << (int)currentMode << std::endl;
+    if (updateTextArea)
+    {
+        textArea->DisplayTextArea(renderer, fontAndColors);
+        textArea->DisplayCursor(renderer, fontAndColors, (int)currentMode);
+    }
+	//std::cout << (int)currentMode << std::endl;
 }
 
 bool Controller::RunLoop()
