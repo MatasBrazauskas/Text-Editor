@@ -40,4 +40,8 @@ public:
 	void DisplayCursor(SDL_Renderer* renderer, FontAndColors* colors, int displayMode);
 
 	void MoveCursor(FontAndColors* color, const int x_offset, const int y_offset);
+	void MoveCursorToEnd(FontAndColors* color);
+
+	void AppendAndMoveToLine();
+	void CursorFromRight(FontAndColors* color);
 };

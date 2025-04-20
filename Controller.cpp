@@ -26,8 +26,11 @@ Controller::~Controller()
 void Controller::DistributeCommands()
 {
     SDL_Event e;
+    SDL_StartTextInput();
+
     bool skipNextTextInput = false;
     bool updateTextArea = false;
+
     while (SDL_PollEvent(&e) != 0)
     {
         if (e.type == SDL_QUIT) // Close window
@@ -46,6 +49,10 @@ void Controller::DistributeCommands()
                 {
                     textArea->DeleteCurrentLetter(fontAndColors); // Delete current cursor position
                 }
+                else if (e.key.keysym.sym == SDLK_RETURN)
+                {
+                    textArea->AppendAndMoveToLine();
+                }
                 break;
 
             case (int)mode::NORMAL:
@@ -63,10 +70,12 @@ void Controller::DistributeCommands()
                         break;
                     case SDLK_a:
                         currentMode = mode::INSERT;
+                        textArea->CursorFromRight(fontAndColors);
                         skipNextTextInput = true;
                         break;
                     case SDLK_o:
                         currentMode = mode::INSERT;
+                        textArea->AppendAndMoveToLine();
                         skipNextTextInput = true;
                         break;
                     case SDLK_v: // Switch to visual mode
@@ -84,18 +93,31 @@ void Controller::DistributeCommands()
                     case SDLK_j:
                         textArea->MoveCursor(fontAndColors, 0, 1); 
                         break;
+                    case SDLK_p :break;
                     }
                 }
                 break;
             }
         }
-        else if (e.type == SDL_TEXTINPUT && currentMode == mode::INSERT)
+        else if (e.type == SDL_TEXTINPUT)
         {
-            if (skipNextTextInput) {
-                skipNextTextInput = false;
-                continue;
+            switch ((int)currentMode)
+            {
+            case (int)mode::INSERT:
+                if (skipNextTextInput) {
+                    skipNextTextInput = false;
+                    continue;
+                }
+                textArea->InsertNearTheCursor(fontAndColors, e.text.text[0]); // Get actual typed character
+                break;
+
+            case (int)mode::NORMAL:
+                if (e.text.text[0] == '$')
+                {
+                    textArea->MoveCursorToEnd(fontAndColors);
+                    updateTextArea = true;
+                }
             }
-            textArea->InsertNearTheCursor(fontAndColors, e.text.text[0]); // Get actual typed character
         }
     }
     //Temp display of a text area
@@ -104,7 +126,6 @@ void Controller::DistributeCommands()
         textArea->DisplayTextArea(renderer, fontAndColors);
         textArea->DisplayCursor(renderer, fontAndColors, (int)currentMode);
     }
-	//std::cout << (int)currentMode << std::endl;
 }
 
 bool Controller::RunLoop()

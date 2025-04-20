@@ -105,9 +105,23 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 	{
 		int x, y;
 		cursorColumn--;
+
 		TTF_SizeUTF8(color->TTFont, std::string(1, fileText.at(currentFileName).text.at(cursorRow)[cursorColumn]).c_str(), &x, &y);
 		fileText.at(currentFileName).text.at(cursorRow).erase(cursorColumn, 1);
 		cursorX -= x;
+	}
+	else if (cursorColumn == 0 && cursorRow > 0)
+	{
+		fileText.at(currentFileName).text.at(cursorRow - 1) += fileText.at(currentFileName).text.at(cursorRow);
+		fileText.at(currentFileName).text.erase(fileText.at(currentFileName).text.begin() + cursorRow);
+
+		cursorRow--;
+		cursorY -= 30;
+
+		int x, y;
+		cursorColumn = fileText.at(currentFileName).text.at(cursorRow).length() - 1;
+		TTF_SizeUTF8(color->TTFont, fileText.at(currentFileName).text.at(cursorRow).substr(0, cursorColumn).c_str(), &x, &y);
+		cursorX = CXOffset + x;
 	}
 }
 
@@ -195,4 +209,30 @@ void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_
 			cursorColumn = newStringLength;
 		}
 	}
+}
+
+void TextArea::MoveCursorToEnd(FontAndColors* color)
+{
+	int x, y;
+	size_t len = fileText.at(currentFileName).text.at(cursorRow).length() - 1;
+	TTF_SizeText(color->TTFont, fileText.at(currentFileName).text.at(cursorRow).substr(0, len).c_str(), &x, &y);
+	cursorX = CYOffset + x;
+	cursorColumn = len;
+}
+
+void TextArea::CursorFromRight(FontAndColors* color)
+{
+	int x, y;
+	TTF_SizeUTF8(color->TTFont, std::string(1, fileText.at(currentFileName).text.at(cursorRow).at(cursorColumn)).c_str(), &x, &y);
+	cursorColumn++;
+	cursorX += x;
+}
+void TextArea::AppendAndMoveToLine()
+{
+	fileText.at(currentFileName).text.insert(fileText.at(currentFileName).text.begin() + cursorRow + 1, std::string());
+	cursorX = CXOffset;
+	cursorColumn = 0;
+
+	cursorY += 30;
+	cursorRow++;
 }
