@@ -28,6 +28,7 @@ public:
 	size_t cursorX = 12, cursorY = 12;
 
 	const int CXOffset = 10, CYOffset = 10;
+	const int TEMPYOFFSETFORCURSOR = 24;
 
 	void DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors);
 

@@ -23,10 +23,20 @@ void CommandLineArea::DisplayFileArea(SDL_Renderer* renderer, FontAndColors* col
 		color->GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR).b,
 		color->GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR).a);
 	SDL_RenderFillRect(renderer, &rect);
-	//SDL_RenderPresent(renderer);
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White border
 	SDL_RenderDrawRect(renderer, &rect);
 
 	SDL_RenderPresent(renderer);
+}
+
+void CommandLineArea::AppendToCommand(const char letter)
+{
+	currentCommand += letter;
+}
+
+void CommandLineArea::DeleteToCommand()
+{
+	if (currentCommand.length() > 0)
+		currentCommand.pop_back();
 }

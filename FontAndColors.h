@@ -13,7 +13,8 @@ public:
 	SDL_Color GetColor(Colors color);
 	SDL_Color editorColors[3];
 
-	const int CFontHeight = 24;
+	const int CFontHeight = 20;
 
 	TTF_Font* TTFont = nullptr;
+	TTF_Font* filesAreaTTFont = nullptr;
 };

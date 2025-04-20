@@ -58,7 +58,7 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 			SDL_RenderCopy(renderer, texture, nullptr, &textRect);
 			SDL_FreeSurface(surface);
 		}
-        yPos += 30;
+        yPos += TEMPYOFFSETFORCURSOR;
     }
 
     SDL_RenderPresent(renderer);
@@ -116,7 +116,7 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 		fileText.at(currentFileName).text.erase(fileText.at(currentFileName).text.begin() + cursorRow);
 
 		cursorRow--;
-		cursorY -= 30;
+		cursorY -= TEMPYOFFSETFORCURSOR;
 
 		int x, y;
 		cursorColumn = fileText.at(currentFileName).text.at(cursorRow).length() - 1;
@@ -197,7 +197,7 @@ void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_
 	else if (y_offset != 0 && cursorRow + y_offset < fileText.at(currentFileName).text.size() && cursorRow + y_offset >= 0)
 	{
 		cursorRow += y_offset;
-		cursorY += (y_offset * 30);
+		cursorY += (y_offset * TEMPYOFFSETFORCURSOR);
 
 		size_t length = fileText.at(currentFileName).text.at(cursorRow).length();
 
@@ -233,6 +233,6 @@ void TextArea::AppendAndMoveToLine()
 	cursorX = CXOffset;
 	cursorColumn = 0;
 
-	cursorY += 30;
+	cursorY += TEMPYOFFSETFORCURSOR;
 	cursorRow++;
 }

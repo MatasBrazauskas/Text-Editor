@@ -9,6 +9,7 @@ FontAndColors::FontAndColors()
 	TTF_Init();
 	//TTFont = TTF_OpenFont("C:\\Users\\matas\\Desktop\\Roboto.ttf", CFontHeight);
 	TTFont = TTF_OpenFont("C:\\Users\\matas\\Desktop\\CONSOLA.TTF", CFontHeight);
+	filesAreaTTFont = TTF_OpenFont("C:\\Users\\matas\\Desktop\\CONSOLA.TTF", 16);
 }
 
 FontAndColors::~FontAndColors()

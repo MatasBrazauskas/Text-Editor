@@ -97,6 +97,16 @@ void Controller::DistributeCommands()
                     }
                 }
                 break;
+            case (int)mode::COMMAND:
+                if (e.key.keysym.sym == SDLK_BACKSPACE)
+                {
+                    commandLineArea->DeleteToCommand();
+                }
+                else if (e.type == SDL_TEXTINPUT)
+                {
+                    commandLineArea->AppendToCommand(e.text.text[0]);
+                }
+                break;
             }
         }
         else if (e.type == SDL_TEXTINPUT)

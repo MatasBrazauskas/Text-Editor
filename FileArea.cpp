@@ -1,4 +1,5 @@
 #include "FileArea.h"
+#include <filesystem>
 
 FileArea::FileArea()
 {
@@ -25,5 +26,36 @@ void FileArea::DisplayFileArea(SDL_Renderer* renderer, FontAndColors* color)
 	SDL_RenderPresent(renderer);
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White border
+
+	int y = 0;
+	for (const auto& filesPath : std::filesystem::directory_iterator(path))
+	{
+		std::string temp = filesPath.path().string();
+		size_t index = temp.rfind("\\");
+		if (index != std::string::npos)
+		{
+			temp = temp.substr(index);
+		}
+
+		temp[0] = ' ';
+		if (filesPath.is_directory())
+		{
+			temp[0] = '>';
+			temp += '/';
+		}
+
+		SDL_Surface* surface = TTF_RenderText_Blended(color->filesAreaTTFont, temp.c_str(), color->GetColor(FontAndColors::Colors::TEXT_COLOR));
+		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+		if (surface)
+		{
+			SDL_Rect textRect = { (int)starting_X + 10, (int)starting_Y + 10 + y, (int)surface->w, (int)surface->h };
+
+			SDL_RenderCopy(renderer, texture, nullptr, &textRect);
+			SDL_FreeSurface(surface);
+		}
+		y+=20;
+	}
+
 	SDL_RenderDrawRect(renderer, &rect);
 }
