@@ -15,7 +15,8 @@ Controller::Controller(SDL_Renderer* renderer)
 	errorArea->DisplayFileArea(renderer, fontAndColors);
     fileArea->DisplayFileArea(renderer, fontAndColors);
     textArea->DisplayTextArea(renderer, fontAndColors);
-    commandLineArea->DisplayFileArea(renderer, fontAndColors);
+    commandLineArea->DisplayShellInput(renderer, fontAndColors, (int)currentMode);
+    commandLineArea->DisplayShellOutput(renderer, fontAndColors);
 }
 
 Controller::~Controller()
@@ -30,6 +31,7 @@ void Controller::DistributeCommands()
 
     bool skipNextTextInput = false;
     bool updateTextArea = false;
+	bool displayCommandLine = false;
 
     while (SDL_PollEvent(&e) != 0)
     {
@@ -39,6 +41,7 @@ void Controller::DistributeCommands()
         if (e.type == SDL_KEYDOWN)
         {
             updateTextArea = true;
+            displayCommandLine = true;
             if (e.key.keysym.sym == SDLK_ESCAPE) // Switch modes
                 currentMode = mode::NORMAL;
 
@@ -93,7 +96,6 @@ void Controller::DistributeCommands()
                     case SDLK_j:
                         textArea->MoveCursor(fontAndColors, 0, 1); 
                         break;
-                    case SDLK_p :break;
                     }
                 }
                 break;
@@ -101,10 +103,16 @@ void Controller::DistributeCommands()
                 if (e.key.keysym.sym == SDLK_BACKSPACE)
                 {
                     commandLineArea->DeleteToCommand();
+					commandLineArea->DisplayShellInput(renderer, fontAndColors, (int)currentMode);
+                    displayCommandLine = true;
                 }
-                else if (e.type == SDL_TEXTINPUT)
+                else if (e.key.keysym.sym == SDLK_RETURN)
                 {
-                    commandLineArea->AppendToCommand(e.text.text[0]);
+                    currentMode = mode::NORMAL;
+					displayCommandLine = true;
+					fileArea->DisplayFileArea(renderer, fontAndColors);
+                    commandLineArea->DisplayShellOutput(renderer, fontAndColors);
+                    commandLineArea->DisplayShellInput(renderer, fontAndColors, (int)currentMode);
                 }
                 break;
             }
@@ -127,6 +135,15 @@ void Controller::DistributeCommands()
                     textArea->MoveCursorToEnd(fontAndColors);
                     updateTextArea = true;
                 }
+                break;
+            case (int)mode::COMMAND:
+                if (e.type == SDL_TEXTINPUT)
+                {
+                    commandLineArea->AppendToCommand(e.text.text[0]);
+					commandLineArea->DisplayShellInput(renderer, fontAndColors, (int)currentMode);
+                    displayCommandLine = true;
+                }
+                break;
             }
         }
     }
@@ -136,6 +153,7 @@ void Controller::DistributeCommands()
         textArea->DisplayTextArea(renderer, fontAndColors);
         textArea->DisplayCursor(renderer, fontAndColors, (int)currentMode);
     }
+    //std::cout << (int)currentMode << '\n';
 }
 
 bool Controller::RunLoop()

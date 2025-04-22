@@ -12,7 +12,7 @@ public:
 
 	size_t starting_X, starting_Y, ending_X, ending_Y;
 	std::vector<std::string> loadedFilesPath;
-	std::string path = "C:\\Users\\matas\\Desktop\\TextEditor";
+	std::string path = "C:\\Users\\matas\\Desktop\\ForEditor";
 
 	void DisplayFileArea(SDL_Renderer* renderer, FontAndColors* color);
 };
