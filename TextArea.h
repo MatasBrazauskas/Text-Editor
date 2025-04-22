@@ -27,8 +27,14 @@ public:
 	size_t cursorWidht, cursor_Height;
 	size_t cursorX = 12, cursorY = 12;
 
-	const int CXOffset = 10, CYOffset = 10;
+	int CXOffset, CYOffset;
+	int offTheEdgeX = 10, offTheEdgeY = 10;
 	const int TEMPYOFFSETFORCURSOR = 24;
+
+	bool showNumbers = false;
+	bool relativeLineNumbers = false;
+
+	std::string LineNumbers(size_t index);
 
 	void DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors);
 

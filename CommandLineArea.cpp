@@ -34,6 +34,17 @@ void CommandLineArea::DisplayShellInput(SDL_Renderer* renderer, FontAndColors* c
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	SDL_RenderFillRect(renderer, &rect);
 
+	if (commandLineMessage == "")
+	{
+		int x, y;
+		TTF_SizeUTF8(color->TTFont, currentCommand.c_str(), &x, &y);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		for (size_t i = 0; i < y; i++)
+		{
+			SDL_RenderDrawPoint(renderer, starting_X + x + 5, starting_Y + i);
+		}
+	}
+
 	SDL_Color textColor = { 0,0,0,255 };
 
 	SDL_Surface* surface = TTF_RenderText_Blended(color->TTFont, (commandLineMessage + currentCommand).c_str(), textColor);
@@ -41,7 +52,7 @@ void CommandLineArea::DisplayShellInput(SDL_Renderer* renderer, FontAndColors* c
 
 	if (surface)
 	{
-		SDL_Rect textRect = { (int)starting_X + 20, (int)starting_Y, (int)surface->w, (int)surface->h };
+		SDL_Rect textRect = { (int)starting_X + 5, (int)starting_Y, (int)surface->w, (int)surface->h };
 
 		SDL_RenderCopy(renderer, texture, nullptr, &textRect);
 		SDL_FreeSurface(surface);
@@ -137,6 +148,19 @@ std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& 
 		{
 			textArea->WriteIntoCurrentFile();
 			closeWindows = false;
+		}
+		else if (currentCommand == ":set number")
+		{
+			textArea->showNumbers = true;
+		}
+		else if (currentCommand == ":set nonumber")
+		{
+			textArea->showNumbers = false;
+		}
+		else if (currentCommand == ":set relativenumber")
+		{
+			textArea->showNumbers = true;
+			textArea->relativeLineNumbers = true;
 		}
 	}
 

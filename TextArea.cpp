@@ -2,6 +2,7 @@
 #include <fstream>
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 
 TextArea::TextArea()
 {
@@ -27,6 +28,23 @@ TextArea::~TextArea()
 	// Destructor implementation
 }
 
+std::string TextArea::LineNumbers(size_t index)
+{
+	if(showNumbers == false)
+		return "";
+
+	std::string lineNumber = std::to_string(index+ 1);
+	if (relativeLineNumbers)
+		lineNumber = std::to_string(abs((int)fileText[currentFileName].text.size() - 1 - (int)index));
+
+	for(size_t i = 0; i < (int)(log10(fileText[currentFileName].text.size()) + 1) - lineNumber.length(); i++)
+	{
+		lineNumber.insert(0, 1, ' ');
+	}
+
+	return lineNumber;
+}
+
 void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 {
 	
@@ -39,8 +57,24 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
     SDL_RenderDrawRect(renderer, &rect);
 
     int yPos = 0;
+	
+	CYOffset = offTheEdgeY;
+	CXOffset = offTheEdgeX;
 
-    for (std::string& line : fileText[currentFileName].text) {
+	if (showNumbers)
+	{
+		//CXOffset += (log10(fileText[currentFileName].text.size()) + 1) * 5;
+		int x, y;
+		TTF_SizeUTF8(colors->TTFont, std::string(1, 'a').c_str(), &x, &y);
+		SDL_Rect rec = { (int)starting_X, (int)starting_Y, (int)(log10(fileText[currentFileName].text.size()) + 1) * x, (int)(ending_Y - starting_Y - 2) };
+
+		SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
+		SDL_RenderFillRect(renderer, &rec);
+	}
+
+	for (size_t i = 0; i < fileText[currentFileName].text.size(); i++){
+		std::string line = LineNumbers(i) + fileText[currentFileName].text[i];
+
 		if (line.empty())
 			line = " ";
 		if (line.find((char)9) != std::string::npos)
@@ -53,7 +87,7 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 
 		if (surface)
 		{
-			SDL_Rect textRect = { (int)starting_X + CXOffset, (int)starting_Y + CYOffset + yPos, (int)surface->w, (int)surface->h };
+			SDL_Rect textRect = { (int)starting_X /* + CXOffset*/, (int)starting_Y + CYOffset + yPos, (int)surface->w, (int)surface->h};
 
 			SDL_RenderCopy(renderer, texture, nullptr, &textRect);
 			SDL_FreeSurface(surface);
@@ -82,22 +116,17 @@ void TextArea::WriteIntoCurrentFile()
 {
 	std::ofstream writer(currentFileName);
 
-	std::for_each(fileText.at(currentFileName).text.begin(), fileText.at(currentFileName).text.end(), [&writer](const std::string i)
-	{
-			writer << i << '\n';
-	});
+	std::for_each(fileText.at(currentFileName).text.begin(), fileText.at(currentFileName).text.end(), [&writer](const std::string i) { writer << i << '\n'; });
 	writer.close();
 }
 
 void TextArea::InsertNearTheCursor(FontAndColors* color, const char letter)
 {
-	if (31 < (int)letter && (int)letter < 128) {
-		fileText.at(currentFileName).text.at(cursorRow).insert(fileText.at(currentFileName).text.at(cursorRow).begin() + cursorColumn, letter);
-		cursorColumn++;
-		int x, y;
-		TTF_SizeText(color->TTFont, std::string(1, letter).c_str(), &x, &y);
-		cursorX += x;
-	}
+	fileText.at(currentFileName).text.at(cursorRow).insert(fileText.at(currentFileName).text.at(cursorRow).begin() + cursorColumn, letter);
+	cursorColumn++;
+	int x, y;
+	TTF_SizeText(color->TTFont, std::string(1, letter).c_str(), &x, &y);
+	cursorX += x;
 }
 
 void TextArea::DeleteCurrentLetter(FontAndColors* color)
@@ -128,6 +157,7 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 
 void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int displayMode)
 {
+	
 	switch (displayMode)
 	{
 	case 1: case 3:
@@ -137,7 +167,7 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int 
 		{
 			for (size_t j = 0; j < cursorWidht; j++)
 			{
-				SDL_RenderDrawPoint(renderer, starting_X + cursorX + j, starting_Y + cursorY + i);
+				SDL_RenderDrawPoint(renderer, starting_X + CXOffset + cursorX + j, starting_Y + CYOffset + cursorY + i);
 			}
 		}
 		break;
@@ -155,7 +185,7 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int 
 		{
 			for (size_t j = 0; j < x; j++)
 			{
-				SDL_RenderDrawPoint(renderer, starting_X + cursorX + j, starting_Y + cursorY + i);
+				SDL_RenderDrawPoint(renderer, starting_X + CXOffset + cursorX + j, starting_Y + CYOffset + cursorY + i);
 			}
 		}
 
@@ -164,7 +194,7 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int 
 
 		if (surface)
 		{
-			SDL_Rect textRect = { (int)starting_X + cursorX, (int)starting_Y + cursorY, (int)surface->w, (int)surface->h };
+			SDL_Rect textRect = { (int)starting_X + CXOffset + cursorX, (int)starting_Y + CYOffset + cursorY, (int)surface->w, (int)surface->h };
 
 			SDL_RenderCopy(renderer, texture, nullptr, &textRect);
 			SDL_FreeSurface(surface);
