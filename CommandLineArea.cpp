@@ -28,7 +28,6 @@ void CommandLineArea::DisplayShellInput(SDL_Renderer* renderer, FontAndColors* c
 	case 0: commandLineMessage = "-- NORMAL --"; break;
 	case 1: commandLineMessage = "-- INSERT --"; break;
 	case 2: commandLineMessage = "-- VISUAL --"; break;
-	//case 3: commandLineMessage = "[COMMAND]"; break;
 	}
 
 	SDL_Rect rect = { (int)starting_X, (int)starting_Y, (int)(ending_X - starting_X), 20 };
@@ -51,7 +50,7 @@ void CommandLineArea::DisplayShellInput(SDL_Renderer* renderer, FontAndColors* c
 	SDL_RenderPresent(renderer);
 }
 
-void CommandLineArea::DisplayShellOutput(SDL_Renderer* renderer, FontAndColors* color)
+void CommandLineArea::DisplayShellOutput(SDL_Renderer* renderer, FontAndColors* color, TextArea* textArea, bool& closeWindow)
 {
 	SDL_Rect rect = { (int)starting_X, (int)starting_Y + 20, (int)(ending_X - starting_X), (int)(ending_Y - starting_Y - 20) };
 	SDL_SetRenderDrawColor(renderer,
@@ -64,7 +63,7 @@ void CommandLineArea::DisplayShellOutput(SDL_Renderer* renderer, FontAndColors* 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White border
 	SDL_RenderDrawRect(renderer, &rect);
 
-	std::string line = ExucuteAndDisplayCommand();// .substr(0, 50);
+	std::string line = ExucuteAndDisplayCommand(textArea, closeWindow);// .substr(0, 50);
 
 	if (line != "")
 		std::cout << line[45] << ' ' << (int)line[45] << '\n';
@@ -73,7 +72,7 @@ void CommandLineArea::DisplayShellOutput(SDL_Renderer* renderer, FontAndColors* 
 	std::string item;
 	size_t YOffset = 25;
 
-	while (std::getline(ss, item, (char)10))
+	while (!line.empty() && std::getline(ss, item, (char)10))
 	{
 		SDL_Surface* surface = TTF_RenderText_Blended(color->filesAreaTTFont, item.c_str(), color->GetColor(FontAndColors::Colors::TEXT_COLOR));
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -102,10 +101,12 @@ void CommandLineArea::DeleteToCommand()
 		currentCommand.pop_back();
 }
 
-std::string CommandLineArea::ExucuteAndDisplayCommand()
+std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& closeWindows)
 {
 	std::string result = "";
 	char buffer[128];
+
+	std::cout << '|' << currentCommand << "|\n";
 
 	if (currentCommand.length() > 1 && currentCommand[1] == '!')
 	{
@@ -117,13 +118,28 @@ std::string CommandLineArea::ExucuteAndDisplayCommand()
 
 		if (pipe)
 		{
-
 			while (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) {
 				result += buffer;
 			}
 		}
 	}
+	else if (currentCommand.length() > 1 && currentCommand[0] == ':')
+	{
+		if (currentCommand == ":w")
+		{
+			textArea->WriteIntoCurrentFile();
+		}
+		else if (currentCommand == ":q")
+		{
+			closeWindows = false;
+		}
+		else if (currentCommand == ":wq")
+		{
+			textArea->WriteIntoCurrentFile();
+			closeWindows = false;
+		}
+	}
+
 	currentCommand.clear();
-	//std::cout << result << '\n';
 	return result;
 }

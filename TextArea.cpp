@@ -86,6 +86,7 @@ void TextArea::WriteIntoCurrentFile()
 	{
 			writer << i << '\n';
 	});
+	writer.close();
 }
 
 void TextArea::InsertNearTheCursor(FontAndColors* color, const char letter)

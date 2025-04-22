@@ -16,7 +16,7 @@ Controller::Controller(SDL_Renderer* renderer)
     fileArea->DisplayFileArea(renderer, fontAndColors);
     textArea->DisplayTextArea(renderer, fontAndColors);
     commandLineArea->DisplayShellInput(renderer, fontAndColors, (int)currentMode);
-    commandLineArea->DisplayShellOutput(renderer, fontAndColors);
+    commandLineArea->DisplayShellOutput(renderer, fontAndColors, textArea, runLoop);
 }
 
 Controller::~Controller()
@@ -111,7 +111,7 @@ void Controller::DistributeCommands()
                     currentMode = mode::NORMAL;
 					displayCommandLine = true;
 					fileArea->DisplayFileArea(renderer, fontAndColors);
-                    commandLineArea->DisplayShellOutput(renderer, fontAndColors);
+                    commandLineArea->DisplayShellOutput(renderer, fontAndColors, textArea, runLoop);
                     commandLineArea->DisplayShellInput(renderer, fontAndColors, (int)currentMode);
                 }
                 break;
