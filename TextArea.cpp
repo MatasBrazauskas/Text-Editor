@@ -35,7 +35,7 @@ std::string TextArea::LineNumbers(size_t index)
 	if (relativeLineNumbers)
 		lineNumber = std::to_string(abs((int)index - (int)filesHashMap[currentFileName].currentRow));
 
-	for(size_t i = 0; i < (int)(filesHashMap[currentFileName].text.size() /  10) + 1 - lineNumber.length(); i++)
+	for(size_t i = 0; i < (int)(log10(filesHashMap[currentFileName].text.size()) + 1) - lineNumber.length(); i++)
 	{
 		lineNumber.insert(0, 1, ' ');
 	}
@@ -299,4 +299,14 @@ void TextArea::LoadOtherFile(const std::string& filesName)
 		filesHashMap.insert({ filesName, textFileInformation() });
 		ReadCurrentFile();
 	}
+}
+
+void TextArea::CloseFile()
+{
+	filesHashMap.erase(currentFileName);
+
+	if (std::vector<std::string>::iterator it = std::find(activeFiles.begin(), activeFiles.end(), currentFileName); it != activeFiles.end())
+		activeFiles.erase(it);
+
+	currentFileName = "";
 }

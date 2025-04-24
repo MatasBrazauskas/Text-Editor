@@ -180,6 +180,10 @@ std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& 
 		{
 			textArea->LoadOtherFile(currentCommand.substr(3));
 		}
+		else if (currentCommand.substr(0, 3) == ":bd")
+		{
+			textArea->CloseFile();
+		}
 	}
 
 	currentCommand.clear();

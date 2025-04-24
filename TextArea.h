@@ -54,4 +54,5 @@ public:
 	void CursorFromRight(FontAndColors* color);
 
 	void LoadOtherFile(const std::string& filesName);
+	void CloseFile();
 };
