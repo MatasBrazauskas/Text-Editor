@@ -14,17 +14,18 @@ public:
 
 	struct textFileInformation
 	{
-		size_t currentIndex = 0;
+		size_t currentRow{};
+		size_t currentColumn{};
 		std::vector<std::string> text;
 	};
 
 	size_t starting_X, starting_Y, ending_X, ending_Y;
 	std::string currentFileName = "";
-	std::vector<std::string> activeFiles;
-	std::unordered_map<std::string, textFileInformation> fileText;
 
-	size_t cursorRow, cursorColumn;
-	size_t cursorWidht, cursor_Height;
+	std::vector<std::string> activeFiles;
+	std::unordered_map<std::string, textFileInformation> filesHashMap;
+
+	size_t cursorWidht{}, cursor_Height{};
 	size_t cursorX = 12, cursorY = 12;
 
 	int CXOffset, CYOffset;
@@ -51,4 +52,6 @@ public:
 
 	void AppendAndMoveToLine();
 	void CursorFromRight(FontAndColors* color);
+
+	void LoadOtherFile(const std::string& filesName);
 };

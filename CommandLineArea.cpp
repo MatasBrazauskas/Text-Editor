@@ -176,6 +176,10 @@ std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& 
 			textArea->showNumbers = true;
 			textArea->relativeLineNumbers = true;
 		}
+		else if (currentCommand.substr(0, 2) == ":e")
+		{
+			textArea->LoadOtherFile(currentCommand.substr(3));
+		}
 	}
 
 	currentCommand.clear();
