@@ -33,11 +33,11 @@ std::string TextArea::LineNumbers(size_t index)
 	if(showNumbers == false)
 		return "";
 
-	std::string lineNumber = std::to_string(index+ 1);
+	std::string lineNumber = std::to_string(index + 1);
 	if (relativeLineNumbers)
-		lineNumber = std::to_string(abs((int)fileText[currentFileName].text.size() - 1 - (int)index));
+		lineNumber = std::to_string(abs((int)index - (int)cursorRow));
 
-	for(size_t i = 0; i < (int)(log10(fileText[currentFileName].text.size()) + 1) - lineNumber.length(); i++)
+	for(size_t i = 0; i < (int)(fileText[currentFileName].text.size() /  10) + 1 - lineNumber.length(); i++)
 	{
 		lineNumber.insert(0, 1, ' ');
 	}
@@ -58,8 +58,8 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 
     int yPos = 0;
 	
-	CYOffset = offTheEdgeY;
-	CXOffset = offTheEdgeX;
+	CYOffset = 0;
+	CXOffset = 0;
 
 	if (showNumbers)
 	{
@@ -70,6 +70,9 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 
 		SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
 		SDL_RenderFillRect(renderer, &rec);
+
+		CYOffset = (int)(log10(fileText[currentFileName].text.size()) + 1) * x;
+		CXOffset = CYOffset;
 	}
 
 	for (size_t i = 0; i < fileText[currentFileName].text.size(); i++){
@@ -194,7 +197,7 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int 
 
 		if (surface)
 		{
-			SDL_Rect textRect = { (int)starting_X + CXOffset + cursorX, (int)starting_Y + CYOffset + cursorY, (int)surface->w, (int)surface->h };
+			SDL_Rect textRect = { (int)starting_X + CXOffset + cursorX, (int)starting_Y + CYOffset + cursorY, (int)surface->w, (int)surface->h};
 
 			SDL_RenderCopy(renderer, texture, nullptr, &textRect);
 			SDL_FreeSurface(surface);
@@ -221,7 +224,7 @@ void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_
 			cursorColumn--;
 		}
 		else if (x_offset == 1) {
-			cursorX += x;
+			cursorX += x + CXOffset;
 			cursorColumn++;
 		}
 	}

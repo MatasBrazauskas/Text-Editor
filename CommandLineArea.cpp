@@ -6,6 +6,13 @@
 #include <memory>
 #include <sstream>
 
+#ifdef _WIN32
+	#include <direct.h>
+	#define chdir _chdir
+#else
+	#include <unistd.h>
+#endif
+
 CommandLineArea::CommandLineArea()
 {
 	starting_X = 250;
@@ -114,49 +121,56 @@ void CommandLineArea::DeleteToCommand()
 
 std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& closeWindows)
 {
-	std::string result = "";
+	std::string result;
 	char buffer[128];
 
 	std::cout << '|' << currentCommand << "|\n";
 
 	if (currentCommand.length() > 1 && currentCommand[1] == '!')
 	{
-		#ifdef _WIN32
-			std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(currentCommand.substr(2).c_str(), "r"), _pclose);
-		#else
-			std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(currentCommand.substr(2).c_str(), "r"), pclose);
-		#endif
+		std::string shellCommand = currentCommand.substr(2);
 
-		if (pipe)
-		{
-			while (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) {
-				result += buffer;
+		// Handle 'cd' internally
+		if (currentCommand.substr(0, 5) == ":!cd ") {
+			std::cout << "CD is runned: " << currentCommand << '\n';
+			std::string path = currentCommand.substr(5);
+			if (chdir(path.c_str()) != 0) {
+				std::perror("cd failed");
+				result = "cd: failed to change directory\n";
+			}
+		}
+		else {
+			#ifdef _WIN32
+				std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(shellCommand.c_str(), "r"), _pclose);
+			#else
+				std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(shellCommand.c_str(), "r"), pclose);
+			#endif
+
+			if (pipe) {
+				while (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) {
+					result += buffer;
+				}
+			}
+			else {
+				result = "Failed to run shell command.\n";
 			}
 		}
 	}
-	else if (currentCommand.length() > 1 && currentCommand[0] == ':')
+	else if (currentCommand.length() > 0 && currentCommand[0] == ':')
 	{
 		if (currentCommand == ":w")
-		{
 			textArea->WriteIntoCurrentFile();
-		}
 		else if (currentCommand == ":q")
-		{
 			closeWindows = false;
-		}
 		else if (currentCommand == ":wq")
 		{
 			textArea->WriteIntoCurrentFile();
 			closeWindows = false;
 		}
 		else if (currentCommand == ":set number")
-		{
 			textArea->showNumbers = true;
-		}
 		else if (currentCommand == ":set nonumber")
-		{
 			textArea->showNumbers = false;
-		}
 		else if (currentCommand == ":set relativenumber")
 		{
 			textArea->showNumbers = true;

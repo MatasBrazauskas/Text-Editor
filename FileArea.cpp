@@ -28,7 +28,7 @@ void FileArea::DisplayFileArea(SDL_Renderer* renderer, FontAndColors* color)
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White border
 
 	int y = 0;
-	for (const auto& filesPath : std::filesystem::directory_iterator(path))
+	for (const auto& filesPath : std::filesystem::directory_iterator(std::filesystem::current_path()))
 	{
 		std::string temp = filesPath.path().string();
 		size_t index = temp.rfind("\\");
