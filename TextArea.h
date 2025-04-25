@@ -24,7 +24,6 @@ public:
 	std::vector<std::string> activeFiles; // maybe remove this
 	std::unordered_map<std::string, textFileInformation> filesHashMap;
 
-	size_t cursorX, cursorY;
 	int charWidth, charHeight;
 
 	size_t offTheEdgeX, offTheEdgeY;
@@ -53,4 +52,6 @@ public:
 
 	void LoadOtherFile(const std::string& filesName);
 	void CloseFile();
+
+	void ChangeCurrentFile(int index);
 };

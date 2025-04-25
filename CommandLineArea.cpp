@@ -81,10 +81,7 @@ void CommandLineArea::DisplayShellOutput(SDL_Renderer* renderer, FontAndColors* 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White border
 	SDL_RenderDrawRect(renderer, &rect);
 
-	std::string line = ExucuteAndDisplayCommand(textArea, closeWindow);// .substr(0, 50);
-
-	if (line != "")
-		std::cout << line[45] << ' ' << (int)line[45] << '\n';
+	std::string line = ExucuteAndDisplayCommand(textArea, closeWindow);
 
 	std::stringstream ss(line);
 	std::string item;
@@ -170,17 +167,20 @@ std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& 
 		else if (currentCommand == ":set number")
 		{
 			textArea->showNumbers = true;
-			textArea->relativeLineNumbers = false;
+			//textArea->relativeLineNumbers = false;
 		}
 		else if (currentCommand == ":set nonumber")
 		{
 			textArea->showNumbers = false;
-			textArea->relativeLineNumbers = false;
 		}
 		else if (currentCommand == ":set relativenumber")
 		{
 			textArea->relativeLineNumbers = true;
-			textArea->showNumbers = false;
+			//textArea->showNumbers = false;
+		}
+		else if (currentCommand == ":set norelativenumber")
+		{
+			textArea->relativeLineNumbers = false;
 		}
 		else if (currentCommand.substr(0, 2) == ":e")
 		{
@@ -189,6 +189,14 @@ std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& 
 		else if (currentCommand.substr(0, 3) == ":bd")
 		{
 			textArea->CloseFile();
+		}
+		else if (currentCommand.substr(0, 3) == ":bn")
+		{
+			textArea->ChangeCurrentFile(1);
+		}
+		else if (currentCommand.substr(0, 3) == ":bp")
+		{
+			textArea->ChangeCurrentFile(-1);
 		}
 	}
 

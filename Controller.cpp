@@ -113,6 +113,7 @@ void Controller::DistributeCommands()
 					fileArea->DisplayFileArea(renderer, fontAndColors);
                     commandLineArea->DisplayShellOutput(renderer, fontAndColors, textArea, runLoop);
                     commandLineArea->DisplayShellInput(renderer, fontAndColors, (int)currentMode);
+                    updateTextArea = true;
                 }
                 break;
             }
