@@ -124,18 +124,14 @@ std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& 
 	std::string result;
 	char buffer[128];
 
-	std::cout << '|' << currentCommand << "|\n";
-
 	if (currentCommand.length() > 1 && currentCommand[1] == '!')
 	{
 		std::string shellCommand = currentCommand.substr(2);
 
-		// Handle 'cd' internally
 		if (currentCommand.substr(0, 5) == ":!cd ") {
-			std::cout << "CD is runned: " << currentCommand << '\n';
 			std::string path = currentCommand.substr(5);
+
 			if (chdir(path.c_str()) != 0) {
-				std::perror("cd failed");
 				result = "cd: failed to change directory\n";
 			}
 		}
@@ -159,22 +155,32 @@ std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& 
 	else if (currentCommand.length() > 0 && currentCommand[0] == ':')
 	{
 		if (currentCommand == ":w")
+		{
 			textArea->WriteIntoCurrentFile();
+		}
 		else if (currentCommand == ":q")
+		{
 			closeWindows = false;
+		}
 		else if (currentCommand == ":wq")
 		{
 			textArea->WriteIntoCurrentFile();
 			closeWindows = false;
 		}
 		else if (currentCommand == ":set number")
-			textArea->showNumbers = true;
-		else if (currentCommand == ":set nonumber")
-			textArea->showNumbers = false;
-		else if (currentCommand == ":set relativenumber")
 		{
 			textArea->showNumbers = true;
+			textArea->relativeLineNumbers = false;
+		}
+		else if (currentCommand == ":set nonumber")
+		{
+			textArea->showNumbers = false;
+			textArea->relativeLineNumbers = false;
+		}
+		else if (currentCommand == ":set relativenumber")
+		{
 			textArea->relativeLineNumbers = true;
+			textArea->showNumbers = false;
 		}
 		else if (currentCommand.substr(0, 2) == ":e")
 		{

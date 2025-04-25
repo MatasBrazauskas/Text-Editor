@@ -1,6 +1,5 @@
 #pragma once
 #include "SDL.h"
-//#include "SDL_ttf.h"
 #include "FontAndColors.h"
 #include <vector>
 #include <string>
@@ -22,17 +21,15 @@ public:
 	size_t starting_X, starting_Y, ending_X, ending_Y;
 	std::string currentFileName = "";
 
-	int charWidth, charHeight;
-
-	std::vector<std::string> activeFiles;
+	std::vector<std::string> activeFiles; // maybe remove this
 	std::unordered_map<std::string, textFileInformation> filesHashMap;
 
-	size_t cursorWidht{}, cursor_Height{};
-	size_t cursorX = 12, cursorY = 12;
+	size_t cursorX, cursorY;
+	int charWidth, charHeight;
 
-	int CXOffset, CYOffset;
-	int offTheEdgeX = 10, offTheEdgeY = 10;
-	const int TEMPYOFFSETFORCURSOR = 24;
+	size_t offTheEdgeX, offTheEdgeY;
+
+	enum class Offsets { pixelsBetweenLines = 2 , cursorWidth = 2};
 
 	bool showNumbers = false, relativeLineNumbers = false;
 
