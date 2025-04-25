@@ -3,11 +3,11 @@
 
 Controller::Controller(SDL_Renderer* renderer)
 {
-	errorArea = new ErrorArea();
-	fileArea = new FileArea();
-	textArea = new TextArea();
-	commandLineArea = new CommandLineArea();
     fontAndColors = new FontAndColors();
+    errorArea = new ErrorArea();
+    fileArea = new FileArea();
+    textArea = new TextArea(fontAndColors);
+    commandLineArea = new CommandLineArea();
 
 
     this->renderer = renderer;

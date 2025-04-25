@@ -6,7 +6,7 @@
 #include <print>
 #include <filesystem>
 
-TextArea::TextArea()
+TextArea::TextArea(FontAndColors* color)
 {
 	starting_X = 250;
 	starting_Y = 0;
@@ -18,7 +18,7 @@ TextArea::TextArea()
 	cursorX = CXOffset;
 	cursorY = CYOffset;
 
-	ReadCurrentFile();
+	TTF_SizeUTF8(color->TTFont, std::string(1, 'a').c_str(), &charWidth, &charHeight);
 }
 
 TextArea::~TextArea()
@@ -64,14 +64,12 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 	if (showNumbers)
 	{
 		//CXOffset += (log10(fileText[currentFileName].text.size()) + 1) * 5;
-		int x, y;
-		TTF_SizeUTF8(colors->TTFont, std::string(1, 'a').c_str(), &x, &y);
-		SDL_Rect rec = { (int)starting_X, (int)starting_Y, (int)(log10(filesHashMap[currentFileName].text.size()) + 1) * x, (int)(ending_Y - starting_Y - 2) };
+		SDL_Rect rec = { (int)starting_X, (int)starting_Y, (int)(log10(filesHashMap[currentFileName].text.size()) + 1) * charWidth, (int)(ending_Y - starting_Y - 2) };
 
 		SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
 		SDL_RenderFillRect(renderer, &rec);
 
-		CYOffset = (int)(log10(filesHashMap[currentFileName].text.size()) + 1) * x;
+		CYOffset = (int)(log10(filesHashMap[currentFileName].text.size()) + 1) * charWidth;
 		CXOffset = CYOffset;
 	}
 
@@ -136,24 +134,21 @@ void TextArea::WriteIntoCurrentFile()
 
 void TextArea::InsertNearTheCursor(FontAndColors* color, const char letter)
 {
-	filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).insert(filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).begin() + filesHashMap.at(currentFileName).currentColumn, letter);
-	//filesHashMap.at(currentFileName);// .text.at(filesHashMap.at(currentFileName).currentRow);
+	auto start = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).begin();
+	filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).insert(start + filesHashMap.at(currentFileName).currentColumn, letter);
+
 	filesHashMap.at(currentFileName).currentColumn++;
-	int x, y;
-	TTF_SizeText(color->TTFont, std::string(1, letter).c_str(), &x, &y);
-	cursorX += x;
+	cursorX += charWidth;
 }
 
 void TextArea::DeleteCurrentLetter(FontAndColors* color)
 {
 	if (filesHashMap[currentFileName].currentColumn > 0)
 	{
-		int x, y;
 		filesHashMap[currentFileName].currentColumn--;
 
-		TTF_SizeUTF8(color->TTFont, std::string(1, filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow)[filesHashMap[currentFileName].currentColumn]).c_str(), &x, &y);
 		filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).erase(filesHashMap[currentFileName].currentColumn, 1);
-		cursorX -= x;
+		cursorX -= charWidth;
 	}
 	else if (filesHashMap[currentFileName].currentColumn == 0 && filesHashMap[currentFileName].currentRow > 0)
 	{
@@ -163,10 +158,8 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 		filesHashMap[currentFileName].currentRow--;
 		cursorY -= TEMPYOFFSETFORCURSOR;
 
-		int x, y;
 		filesHashMap[currentFileName].currentColumn = filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).length() - 1;
-		TTF_SizeUTF8(color->TTFont, filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).substr(0, filesHashMap[currentFileName].currentColumn).c_str(), &x, &y);
-		cursorX = CXOffset + x;
+		cursorX = CXOffset + (charWidth * filesHashMap[currentFileName].currentColumn);
 	}
 }
 
@@ -189,17 +182,15 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int 
 		break;
 	case 0: case 2:
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		int x, y;
 		char currentLetter = filesHashMap.at(currentFileName).text.empty() ? ' ' : filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow)[filesHashMap[currentFileName].currentColumn];
 		if (currentLetter == '\0')
 		{
 			currentLetter = ' ';
 		}
-		TTF_SizeUTF8(colors->TTFont, std::string(1, currentLetter).c_str(), &x, &y);
 
 		for (size_t i = 0; i < colors->CFontHeight; i++)
 		{
-			for (size_t j = 0; j < x; j++)
+			for (size_t j = 0; j < charWidth; j++)
 			{
 				SDL_RenderDrawPoint(renderer, starting_X + CXOffset + cursorX + j, starting_Y + CYOffset + cursorY + i);
 			}
@@ -225,19 +216,16 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int 
 
 void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_offset)
 {
-	int x, y;
-	TTF_SizeUTF8(color->TTFont, std::string(1, filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow)[filesHashMap[currentFileName].currentColumn]).c_str(), &x, &y);
 	size_t currentLineLength = filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).length();
 
 	if (x_offset != 0 && filesHashMap[currentFileName].currentColumn + x_offset >= 0 && filesHashMap[currentFileName].currentColumn + x_offset < currentLineLength)
 	{
 		if (x_offset == -1) {
-			TTF_SizeUTF8(color->TTFont, std::string(1, filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow)[filesHashMap[currentFileName].currentColumn - 1]).c_str(), &x, &y);
-			cursorX -= x;
+			cursorX -= charWidth;
 			filesHashMap[currentFileName].currentColumn--;
 		}
 		else if (x_offset == 1) {
-			cursorX += x + CXOffset;
+			cursorX += charWidth + CXOffset;
 			filesHashMap[currentFileName].currentColumn++;
 		}
 	}
@@ -251,8 +239,7 @@ void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_
 		if (length <= filesHashMap[currentFileName].currentColumn)
 		{
 			size_t newStringLength = filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).length() - 1;
-			TTF_SizeUTF8(color->TTFont, filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).substr(0, newStringLength).c_str(), &x, &y);
-			cursorX = CXOffset + x;
+			cursorX = CXOffset + (newStringLength * charWidth);
 			filesHashMap[currentFileName].currentColumn = newStringLength;
 		}
 	}
@@ -260,19 +247,15 @@ void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_
 
 void TextArea::MoveCursorToEnd(FontAndColors* color)
 {
-	int x, y;
 	size_t len = filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).length() - 1;
-	TTF_SizeText(color->TTFont, filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).substr(0, len).c_str(), &x, &y);
-	cursorX = CYOffset + x;
+	cursorX = CYOffset + (len * charWidth);
 	filesHashMap[currentFileName].currentColumn = len;
 }
 
 void TextArea::CursorFromRight(FontAndColors* color)
 {
-	int x, y;
-	TTF_SizeUTF8(color->TTFont, std::string(1, filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).at(filesHashMap[currentFileName].currentColumn)).c_str(), &x, &y);
-	filesHashMap[currentFileName].currentColumn++;
-	cursorX += x;
+	filesHashMap.at(currentFileName).currentColumn++;
+	cursorX += charWidth;
 }
 
 void TextArea::AppendAndMoveToLine()

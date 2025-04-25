@@ -9,7 +9,7 @@
 class TextArea
 {
 public:
-	TextArea();
+	TextArea(FontAndColors* color);
 	~TextArea();
 
 	struct textFileInformation
@@ -22,6 +22,8 @@ public:
 	size_t starting_X, starting_Y, ending_X, ending_Y;
 	std::string currentFileName = "";
 
+	int charWidth, charHeight;
+
 	std::vector<std::string> activeFiles;
 	std::unordered_map<std::string, textFileInformation> filesHashMap;
 
@@ -32,8 +34,7 @@ public:
 	int offTheEdgeX = 10, offTheEdgeY = 10;
 	const int TEMPYOFFSETFORCURSOR = 24;
 
-	bool showNumbers = false;
-	bool relativeLineNumbers = false;
+	bool showNumbers = false, relativeLineNumbers = false;
 
 	std::string LineNumbers(size_t index);
 
