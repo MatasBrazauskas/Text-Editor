@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <print>
 
 #ifdef _WIN32
 	#include <direct.h>
@@ -167,7 +168,6 @@ std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& 
 		else if (currentCommand == ":set number")
 		{
 			textArea->showNumbers = true;
-			//textArea->relativeLineNumbers = false;
 		}
 		else if (currentCommand == ":set nonumber")
 		{
@@ -176,7 +176,6 @@ std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& 
 		else if (currentCommand == ":set relativenumber")
 		{
 			textArea->relativeLineNumbers = true;
-			//textArea->showNumbers = false;
 		}
 		else if (currentCommand == ":set norelativenumber")
 		{
@@ -190,13 +189,19 @@ std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& 
 		{
 			textArea->CloseFile();
 		}
-		else if (currentCommand.substr(0, 3) == ":bn")
+		else if (currentCommand == ":bn")
 		{
 			textArea->ChangeCurrentFile(1);
 		}
-		else if (currentCommand.substr(0, 3) == ":bp")
+		else if (currentCommand == ":bp")
 		{
 			textArea->ChangeCurrentFile(-1);
+		}
+		else if (currentCommand.substr(0, 2) == ":b")
+		{
+			//std::print(currentCommand);
+			std::cout << currentCommand.substr(3) << '|';
+			textArea->JumpToBuffer(currentCommand.substr(3));
 		}
 	}
 

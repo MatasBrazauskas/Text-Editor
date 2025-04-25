@@ -161,10 +161,19 @@ void TextArea::WriteIntoCurrentFile()
 	writer.close();
 }
 
-void TextArea::InsertNearTheCursor(FontAndColors* color, const char letter)
+void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 {
+	std::vector<char> specialSymbols = { '\'', '\"', '{', '(', '<', '[' };
+	std::vector<char> opp = { '\'', '\"', '}', ')', '>', ']' };
+
+	if (std::vector<char>::iterator it = std::find(specialSymbols.begin(), specialSymbols.end(), letter[0]); it != specialSymbols.end())
+	{
+		size_t index = std::distance(specialSymbols.begin(), it);
+		letter.push_back(opp[index]);
+	}
+
 	auto start = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).begin();
-	filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).insert(start + filesHashMap.at(currentFileName).currentColumn, letter);
+	filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).insert(start + filesHashMap.at(currentFileName).currentColumn, letter.begin(), letter.end());
 
 	filesHashMap.at(currentFileName).currentColumn++;
 }
@@ -260,13 +269,13 @@ void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_
 
 void TextArea::MoveCursorToEnd(FontAndColors* color)
 {
-	size_t len = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length() - 1;
+	size_t len = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length() - 2;
 	filesHashMap.at(currentFileName).currentColumn = len;
 }
 
 void TextArea::CursorFromRight(FontAndColors* color)
 {
-	if (filesHashMap.at(currentFileName).currentColumn + 1 != filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).size())
+	if (filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow) != " ")//filesHashMap.at(currentFileName).currentColumn + 1 != filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).size())
 	{
 		filesHashMap.at(currentFileName).currentColumn++;
 	}
@@ -324,4 +333,25 @@ void TextArea::ChangeCurrentFile(int index)
 		it += index;
 	}
 	currentFileName = *(it);
+}
+
+void TextArea::JumpToBuffer(const std::string& index)
+{
+	if (std::all_of(index.begin(), index.end(), ::isdigit) == true)
+	{
+		int jumpIndex = std::stoi(index);
+
+		if (jumpIndex >= 1 && jumpIndex <= activeFiles.size())
+		{
+			currentFileName = activeFiles.at(jumpIndex - 1);
+		}
+	}
+	else
+	{
+		std::vector<std::string>::iterator it = std::find(activeFiles.begin(), activeFiles.end(), index);
+		if (it != activeFiles.end())
+		{
+			currentFileName = *it;
+		}
+	}
 }

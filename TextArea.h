@@ -39,7 +39,7 @@ public:
 	void ReadCurrentFile();
 	void WriteIntoCurrentFile();
 
-	void InsertNearTheCursor(FontAndColors* color, const char letter);
+	void InsertNearTheCursor(FontAndColors* color, std::string letter);
 	void DeleteCurrentLetter(FontAndColors* color);
 
 	void DisplayCursor(SDL_Renderer* renderer, FontAndColors* colors, int displayMode);
@@ -54,4 +54,5 @@ public:
 	void CloseFile();
 
 	void ChangeCurrentFile(int index);
+	void JumpToBuffer(const std::string& index);
 };

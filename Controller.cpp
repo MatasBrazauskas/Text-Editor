@@ -110,10 +110,10 @@ void Controller::DistributeCommands()
                 {
                     currentMode = mode::NORMAL;
 					displayCommandLine = true;
+                    updateTextArea = true;
 					fileArea->DisplayFileArea(renderer, fontAndColors);
                     commandLineArea->DisplayShellOutput(renderer, fontAndColors, textArea, runLoop);
                     commandLineArea->DisplayShellInput(renderer, fontAndColors, (int)currentMode);
-                    updateTextArea = true;
                 }
                 break;
             }
@@ -127,7 +127,7 @@ void Controller::DistributeCommands()
                     skipNextTextInput = false;
                     continue;
                 }
-                textArea->InsertNearTheCursor(fontAndColors, e.text.text[0]); // Get actual typed character
+                textArea->InsertNearTheCursor(fontAndColors, e.text.text); // Get actual typed character
                 break;
 
             case (int)mode::NORMAL:
@@ -148,13 +148,11 @@ void Controller::DistributeCommands()
             }
         }
     }
-    //Temp display of a text area
     if (updateTextArea)
     {
         textArea->DisplayTextArea(renderer, fontAndColors);
         textArea->DisplayCursor(renderer, fontAndColors, (int)currentMode);
     }
-    //std::cout << (int)currentMode << '\n';
 }
 
 bool Controller::RunLoop()
