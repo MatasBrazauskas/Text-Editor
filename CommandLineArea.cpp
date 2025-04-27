@@ -82,25 +82,28 @@ void CommandLineArea::DisplayShellOutput(SDL_Renderer* renderer, FontAndColors* 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White border
 	SDL_RenderDrawRect(renderer, &rect);
 
-	std::string line = ExucuteAndDisplayCommand(textArea, closeWindow);
+	std::optional<std::string> line = ExucuteAndDisplayCommand(textArea, closeWindow);
 
-	std::stringstream ss(line);
 	std::string item;
 	size_t YOffset = 25;
-
-	while (!line.empty() && std::getline(ss, item, (char)10))
+	
+	if (line.has_value())
 	{
-		SDL_Surface* surface = TTF_RenderText_Blended(color->filesAreaTTFont, item.c_str(), color->GetColor(FontAndColors::Colors::TEXT_COLOR));
-		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-		if (surface)
+		std::stringstream ss(line.value());
+		while (std::getline(ss, item, (char)10))
 		{
-			SDL_Rect textRect = { (int)starting_X + 10, (int)starting_Y + YOffset, (int)surface->w, (int)surface->h};
+			SDL_Surface* surface = TTF_RenderText_Blended(color->filesAreaTTFont, item.c_str(), color->GetColor(FontAndColors::Colors::TEXT_COLOR));
+			SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-			SDL_RenderCopy(renderer, texture, nullptr, &textRect);
-			SDL_FreeSurface(surface);
+			if (surface)
+			{
+				SDL_Rect textRect = { (int)starting_X + 10, (int)starting_Y + YOffset, (int)surface->w, (int)surface->h };
+
+				SDL_RenderCopy(renderer, texture, nullptr, &textRect);
+				SDL_FreeSurface(surface);
+			}
+			YOffset += 20;
 		}
-		YOffset += 20;
 	}
 
 	SDL_RenderPresent(renderer);
@@ -117,7 +120,7 @@ void CommandLineArea::DeleteToCommand()
 		currentCommand.pop_back();
 }
 
-std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& closeWindows)
+std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& closeWindows)
 {
 	std::string result;
 	char buffer[128];
@@ -206,5 +209,7 @@ std::string CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& 
 	}
 
 	currentCommand.clear();
+	if (result.empty())
+		return std::nullopt;
 	return result;
 }

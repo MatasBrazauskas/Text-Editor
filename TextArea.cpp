@@ -248,7 +248,6 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int 
 void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_offset)
 {
 	size_t currentLineLength = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length();
-
 	if (x_offset != 0 && filesHashMap.at(currentFileName).currentColumn + x_offset >= 0 && filesHashMap.at(currentFileName).currentColumn + x_offset < currentLineLength)
 	{
 		filesHashMap.at(currentFileName).currentColumn += x_offset;
@@ -256,7 +255,6 @@ void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_
 	else if (y_offset != 0 && filesHashMap.at(currentFileName).currentRow + y_offset < filesHashMap.at(currentFileName).text.size() && filesHashMap.at(currentFileName).currentRow + y_offset >= 0)
 	{
 		filesHashMap.at(currentFileName).currentRow += y_offset;
-
 		size_t length = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length();
 
 		if (length <= filesHashMap.at(currentFileName).currentColumn)
@@ -275,7 +273,7 @@ void TextArea::MoveCursorToEnd(FontAndColors* color)
 
 void TextArea::CursorFromRight(FontAndColors* color)
 {
-	if (filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow) != " ")//filesHashMap.at(currentFileName).currentColumn + 1 != filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).size())
+	if (filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow) != " ")
 	{
 		filesHashMap.at(currentFileName).currentColumn++;
 	}
@@ -332,7 +330,7 @@ void TextArea::ChangeCurrentFile(int index)
 	{
 		it += index;
 	}
-	currentFileName = *(it);
+	currentFileName = *it;
 }
 
 void TextArea::JumpToBuffer(const std::string& index)

@@ -4,6 +4,7 @@
 #include "TextArea.h"
 #include <vector>
 #include <string>
+#include <optional>
 
 class CommandLineArea
 {
@@ -22,5 +23,5 @@ public:
 	void AppendToCommand(const char letter);
 	void DeleteToCommand();
 		
-	std::string ExucuteAndDisplayCommand(TextArea* textArea, bool& closeWindows);
+	std::optional<std::string> ExucuteAndDisplayCommand(TextArea* textArea, bool& closeWindows);
 };
