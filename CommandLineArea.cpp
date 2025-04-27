@@ -11,6 +11,8 @@
 #ifdef _WIN32
 	#include <direct.h>
 	#define chdir _chdir
+	#define popen _popen
+	#define pclose _pclose
 #else
 	#include <unistd.h>
 #endif
@@ -136,11 +138,8 @@ std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* t
 			}
 		}
 		else {
-			#ifdef _WIN32
-				std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(currentCommand.substr(2).c_str(), "r"), _pclose);
-			#else
-				std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(shellCommand.c_str(), "r"), pclose);
-			#endif
+			
+			std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(currentCommand.substr(2).c_str(), "r"), pclose);
 
 			if (pipe) {
 				while (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) {
