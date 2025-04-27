@@ -6,6 +6,7 @@
 #include <memory>
 #include <sstream>
 #include <print>
+#include <regex>
 
 #ifdef _WIN32
 	#include <direct.h>
@@ -125,11 +126,9 @@ std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* t
 	std::string result;
 	char buffer[128];
 
-	if (currentCommand.length() > 1 && currentCommand[1] == '!')
+	if(std::regex_match(currentCommand, std::regex(":!.*")) == true)
 	{
-		std::string shellCommand = currentCommand.substr(2);
-
-		if (currentCommand.substr(0, 5) == ":!cd ") {
+		if (std::regex_match(currentCommand, std::regex(":!cd .+")) == true) {
 			std::string path = currentCommand.substr(5);
 
 			if (chdir(path.c_str()) != 0) {
@@ -138,7 +137,7 @@ std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* t
 		}
 		else {
 			#ifdef _WIN32
-				std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(shellCommand.c_str(), "r"), _pclose);
+				std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(currentCommand.substr(2).c_str(), "r"), _pclose);
 			#else
 				std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(shellCommand.c_str(), "r"), pclose);
 			#endif
@@ -184,7 +183,7 @@ std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* t
 		{
 			textArea->relativeLineNumbers = false;
 		}
-		else if (currentCommand.substr(0, 2) == ":e")
+		else if(std::regex_match(currentCommand, std::regex(":e.+(\\.txt|\\.cpp)")) == true)
 		{
 			textArea->LoadOtherFile(currentCommand.substr(3));
 		}
@@ -200,16 +199,13 @@ std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* t
 		{
 			textArea->ChangeCurrentFile(-1);
 		}
-		else if (currentCommand.substr(0, 2) == ":b")
+		else if (std::smatch match; std::regex_match(currentCommand, match, std::regex(R"(:b\s+(\d|.+\.(txt|cpp)))")) == true)
 		{
-			//std::print(currentCommand);
-			std::cout << currentCommand.substr(3) << '|';
-			textArea->JumpToBuffer(currentCommand.substr(3));
+			std::cout << match[1] << '\n';
+			textArea->JumpToBuffer(match[1]);
 		}
 	}
 
 	currentCommand.clear();
-	if (result.empty())
-		return std::nullopt;
-	return result;
+	return result.empty() ? std::nullopt : std::optional<std::string>{ result };
 }
