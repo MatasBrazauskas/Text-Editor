@@ -130,10 +130,8 @@ std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* t
 
 	if(std::regex_match(currentCommand, std::regex(":!.*")) == true)
 	{
-		if (std::regex_match(currentCommand, std::regex(":!cd .+")) == true) {
-			std::string path = currentCommand.substr(5);
-
-			if (chdir(path.c_str()) != 0) {
+		if (std::smatch match;  std::regex_match(currentCommand, match, std::regex(":!cd (.+)")) == true) {
+			if (chdir(std::string(match[1]).c_str()) != 0) {
 				result = "cd: failed to change directory\n";
 			}
 		}
