@@ -125,29 +125,29 @@ void CommandLineArea::DeleteToCommand()
 
 std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& closeWindows)
 {
-	std::string result;
-	char buffer[128];
-
 	if(std::regex_match(currentCommand, std::regex(":!.*")) == true)
 	{
+		std::string result = "Failed to run shell command.\n";
+		char buffer[128];
+
 		if (std::smatch match;  std::regex_match(currentCommand, match, std::regex(":!cd (.+)")) == true) {
 			if (chdir(std::string(match[1]).c_str()) != 0) {
 				result = "cd: failed to change directory\n";
 			}
 		}
 		else {
-			
 			std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(currentCommand.substr(2).c_str(), "r"), pclose);
 
-			if (pipe) {
+			if (pipe) 
+			{
+				result.clear();
 				while (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) {
 					result += buffer;
 				}
 			}
-			else {
-				result = "Failed to run shell command.\n";
-			}
 		}
+		currentCommand.clear();
+		return std::optional<std::string> {result};
 	}
 	else if (currentCommand.length() > 0 && currentCommand[0] == ':')
 	{
@@ -204,5 +204,5 @@ std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* t
 	}
 
 	currentCommand.clear();
-	return result.empty() ? std::nullopt : std::optional<std::string>{ result };
+	return std::nullopt;
 }
