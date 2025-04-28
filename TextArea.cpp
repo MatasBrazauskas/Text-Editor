@@ -163,12 +163,12 @@ void TextArea::WriteIntoCurrentFile()
 
 void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 {
-	std::vector<char> specialSymbols = { '\'', '\"', '{', '(', '<', '[' };
-	std::vector<char> opp = { '\'', '\"', '}', ')', '>', ']' };
+	const char specialSymbols[] = {'\'', '\"', '{', '(', '<', '['};
+	const char opp[] = {'\'', '\"', '}', ')', '>', ']'};
 
-	if (std::vector<char>::iterator it = std::find(specialSymbols.begin(), specialSymbols.end(), letter[0]); it != specialSymbols.end())
+	if (auto it = std::find(specialSymbols, specialSymbols + 6, letter[0]); it != (specialSymbols + 6))
 	{
-		size_t index = std::distance(specialSymbols.begin(), it);
+		size_t index = std::distance(specialSymbols, it);
 		letter.push_back(opp[index]);
 	}
 
@@ -183,7 +183,6 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 	if (filesHashMap.at(currentFileName).currentColumn > 0)
 	{
 		filesHashMap.at(currentFileName).currentColumn--;
-
 		filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).erase(filesHashMap.at(currentFileName).currentColumn, 1);
 	}
 	else if (filesHashMap.at(currentFileName).currentColumn == 0 && filesHashMap.at(currentFileName).currentRow > 0)
@@ -192,7 +191,6 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 		filesHashMap.at(currentFileName).text.erase(filesHashMap.at(currentFileName).text.begin() + filesHashMap[currentFileName].currentRow);
 
 		filesHashMap[currentFileName].currentRow--;
-
 		filesHashMap[currentFileName].currentColumn = filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).length() - 1;
 	}
 }
@@ -201,32 +199,25 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int 
 {
 	if (currentFileName.empty() == true)
 		return;
+
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	auto curr = filesHashMap.at(currentFileName);
-	switch (displayMode)
+	size_t length = ((displayMode & 0b1) == 0b1) ? (int)Offsets::cursorWidth : charWidth;
+
+	for (size_t i = 0; i < charHeight; i++)
 	{
-	case 1: case 3:
-		for (size_t i = 0; i < charHeight; i++)
+		for (size_t j = 0; j < length; j++)
 		{
-			for (size_t j = 0; j < (int)Offsets::cursorWidth; j++)
-			{
-				SDL_RenderDrawPoint(renderer, starting_X + offTheEdgeX + (curr.currentColumn * charWidth) + j, starting_Y + offTheEdgeY + (curr.currentRow * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.currentRow) + i);
-			}
+			SDL_RenderDrawPoint(renderer, starting_X + offTheEdgeX + (curr.currentColumn * charWidth) + j, starting_Y + offTheEdgeY + (curr.currentRow * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.currentRow) + i);
 		}
-		break;
-	case 0: case 2:
+	}
+
+	if (((displayMode & 0b1) != 0b1))
+	{
 		char currentLetter = curr.text.empty() ? ' ' : curr.text.at(filesHashMap[currentFileName].currentRow)[filesHashMap[currentFileName].currentColumn];
 		if (currentLetter == '\0')
 		{
 			currentLetter = ' ';
-		}
-
-		for (size_t i = 0; i < charHeight; i++)
-		{
-			for (size_t j = 0; j < charWidth; j++)
-			{
-				SDL_RenderDrawPoint(renderer, starting_X + offTheEdgeX + (curr.currentColumn * charWidth) + j, starting_Y + offTheEdgeY + (curr.currentRow * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.currentRow) + i);
-			}
 		}
 
 		SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, std::string(1, currentLetter).c_str(), colors->GetColor(FontAndColors::Colors::OPPOSITE_TEXT_COLOR));
@@ -234,13 +225,11 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int 
 
 		if (surface)
 		{
-			SDL_Rect textRect = { (int)starting_X + offTheEdgeX + (curr.currentColumn * charWidth), starting_Y + offTheEdgeY + (curr.currentRow * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.currentRow), (int)surface->w, (int)surface->h};
+			SDL_Rect textRect = { (int)starting_X + offTheEdgeX + (curr.currentColumn * charWidth), starting_Y + offTheEdgeY + (curr.currentRow * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.currentRow), (int)surface->w, (int)surface->h };
 
 			SDL_RenderCopy(renderer, texture, nullptr, &textRect);
 			SDL_FreeSurface(surface);
 		}
-
-		break;
 	}
 	SDL_RenderPresent(renderer);
 }
@@ -293,12 +282,12 @@ void TextArea::LoadOtherFile(const std::string& filesName)
 		return;
 	}	
 
-	currentFileName = filesName;
 	if (std::find(activeFiles.begin(), activeFiles.end(), filesName) == activeFiles.end())
 	{
 		activeFiles.push_back(filesName);
 		filesHashMap.insert( { filesName, textFileInformation() });
 		ReadCurrentFile();
+		currentFileName = filesName;
 	}
 }
 
