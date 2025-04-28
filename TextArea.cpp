@@ -139,8 +139,6 @@ void TextArea::ReadCurrentFile()
 
 	while (std::getline(file, line))
 	{
-		/*if (line.empty())
-			line = " ";*/
 		filesHashMap.at(currentFileName).text.push_back(line);
 	}
 
@@ -190,7 +188,7 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 		filesHashMap.at(currentFileName).text.erase(filesHashMap.at(currentFileName).text.begin() + filesHashMap[currentFileName].currentRow);
 
 		filesHashMap[currentFileName].currentRow--;
-		filesHashMap[currentFileName].currentColumn = filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).length() - 1;
+		filesHashMap[currentFileName].currentColumn = filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).length();
 	}
 }
 
@@ -201,7 +199,7 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, cons
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	const auto curr = filesHashMap.at(currentFileName);
-	const size_t length = ((displayMode & 0b1) == 0b1) ? (int)Offsets::cursorWidth : charWidth;
+	const size_t length = static_cast<bool>(displayMode & 0b1) ? (int)Offsets::cursorWidth : charWidth;
 
 	for (size_t i = 0; i < charHeight; i++)
 	{
@@ -211,23 +209,22 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, cons
 		}
 	}
 
-	if (((displayMode & 0b1) != 0b1))
+	if (static_cast<bool>(displayMode & 0b1) == false && curr.currentColumn < curr.text.at(curr.currentRow).length())
 	{
-		char currentLetter = curr.text.empty() ? ' ' : curr.text.at(filesHashMap[currentFileName].currentRow)[filesHashMap[currentFileName].currentColumn];
-		if (currentLetter == '\0')
+		char currentLetter = curr.text.empty() ? ' ' : curr.text.at(curr.currentRow).at(curr.currentColumn);
+		if (currentLetter != '\0' && currentLetter != ' ')
 		{
-			currentLetter = ' ';
-		}
+			const char text[2] = { currentLetter, '\0' };
+			SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, text, colors->GetColor(FontAndColors::Colors::OPPOSITE_TEXT_COLOR));
+			SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-		SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, std::string(1, currentLetter).c_str(), colors->GetColor(FontAndColors::Colors::OPPOSITE_TEXT_COLOR));
-		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+			if (surface)
+			{
+				SDL_Rect textRect = { (int)starting_X + offTheEdgeX + (curr.currentColumn * charWidth), starting_Y + offTheEdgeY + (curr.currentRow * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.currentRow), (int)surface->w, (int)surface->h };
 
-		if (surface)
-		{
-			SDL_Rect textRect = { (int)starting_X + offTheEdgeX + (curr.currentColumn * charWidth), starting_Y + offTheEdgeY + (curr.currentRow * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.currentRow), (int)surface->w, (int)surface->h };
-
-			SDL_RenderCopy(renderer, texture, nullptr, &textRect);
-			SDL_FreeSurface(surface);
+				SDL_RenderCopy(renderer, texture, nullptr, &textRect);
+				SDL_FreeSurface(surface);
+			}
 		}
 	}
 	SDL_RenderPresent(renderer);
@@ -244,12 +241,16 @@ void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_
 	{
 		filesHashMap.at(currentFileName).currentRow += y_offset;
 
-		const size_t length = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length();
-		textFileInformation currText = filesHashMap.at(currentFileName);
+		textFileInformation& currText = filesHashMap.at(currentFileName);
+		const size_t length = currText.text.at(currText.currentRow).length();
 
-		if (length <= currText.currentColumn && currText.text.at(currText.currentRow).empty() == false)
+		if (length == 0)
 		{
-			currText.currentColumn = currText.text.at(currText.currentRow).length() - 1;
+			currText.currentColumn = 0;
+		}
+		else if (length < currText.currentColumn)
+		{
+			currText.currentColumn = length - 1;
 		}
 	}
 }
@@ -262,10 +263,10 @@ void TextArea::MoveCursorToEnd(FontAndColors* color)
 
 void TextArea::CursorFromRight(FontAndColors* color)
 {
-	const textFileInformation currLines = filesHashMap.at(currentFileName);
+	textFileInformation& currLines = filesHashMap.at(currentFileName);
 	if (size_t len = currLines.currentColumn; len < currLines.text.at(currLines.currentRow).length())
 	{
-		filesHashMap.at(currentFileName).currentColumn++;
+		currLines.currentColumn++;
 	}
 }
 
