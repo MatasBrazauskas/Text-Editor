@@ -17,7 +17,7 @@ public:
 
 	std::string currentCommand = "";
 
-	void DisplayShellInput(SDL_Renderer* renderer, FontAndColors* color, int mode);
+	void DisplayShellInput(SDL_Renderer* renderer, FontAndColors* color, const int mode);
 	void DisplayShellOutput(SDL_Renderer* renderer, FontAndColors* color, TextArea* textArea, bool& closeWindow);
 
 	void AppendToCommand(const char letter);

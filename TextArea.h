@@ -42,7 +42,7 @@ public:
 	void InsertNearTheCursor(FontAndColors* color, std::string letter);
 	void DeleteCurrentLetter(FontAndColors* color);
 
-	void DisplayCursor(SDL_Renderer* renderer, FontAndColors* colors, int displayMode);
+	void DisplayCursor(SDL_Renderer* renderer, FontAndColors* colors, const int displayMode);
 
 	void MoveCursor(FontAndColors* color, const int x_offset, const int y_offset);
 	void MoveCursorToEnd(FontAndColors* color);

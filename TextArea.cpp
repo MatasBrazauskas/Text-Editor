@@ -135,13 +135,12 @@ void TextArea::ReadCurrentFile()
 	std::ifstream file(currentFileName);
 	std::string line;
 
-
 	filesHashMap.insert({ currentFileName, textFileInformation() });
 
 	while (std::getline(file, line))
 	{
-		if (line.empty())
-			line = " ";
+		/*if (line.empty())
+			line = " ";*/
 		filesHashMap.at(currentFileName).text.push_back(line);
 	}
 
@@ -166,13 +165,13 @@ void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 	const char specialSymbols[] = {'\'', '\"', '{', '(', '<', '['};
 	const char opp[] = {'\'', '\"', '}', ')', '>', ']'};
 
-	if (auto it = std::find(specialSymbols, specialSymbols + 6, letter[0]); it != (specialSymbols + 6))
+	if (const auto it = std::find(specialSymbols, specialSymbols + 6, letter[0]); it != (specialSymbols + 6))
 	{
 		size_t index = std::distance(specialSymbols, it);
 		letter.push_back(opp[index]);
 	}
 
-	auto start = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).begin();
+	const auto start = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).begin();
 	filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).insert(start + filesHashMap.at(currentFileName).currentColumn, letter.begin(), letter.end());
 
 	filesHashMap.at(currentFileName).currentColumn++;
@@ -195,14 +194,14 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 	}
 }
 
-void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int displayMode)
+void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, const int displayMode)
 {
 	if (currentFileName.empty() == true)
 		return;
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	auto curr = filesHashMap.at(currentFileName);
-	size_t length = ((displayMode & 0b1) == 0b1) ? (int)Offsets::cursorWidth : charWidth;
+	const auto curr = filesHashMap.at(currentFileName);
+	const size_t length = ((displayMode & 0b1) == 0b1) ? (int)Offsets::cursorWidth : charWidth;
 
 	for (size_t i = 0; i < charHeight; i++)
 	{
@@ -236,7 +235,7 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, int 
 
 void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_offset)
 {
-	size_t currentLineLength = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length();
+	const size_t currentLineLength = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length();
 	if (x_offset != 0 && filesHashMap.at(currentFileName).currentColumn + x_offset >= 0 && filesHashMap.at(currentFileName).currentColumn + x_offset < currentLineLength)
 	{
 		filesHashMap.at(currentFileName).currentColumn += x_offset;
@@ -244,25 +243,27 @@ void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_
 	else if (y_offset != 0 && filesHashMap.at(currentFileName).currentRow + y_offset < filesHashMap.at(currentFileName).text.size() && filesHashMap.at(currentFileName).currentRow + y_offset >= 0)
 	{
 		filesHashMap.at(currentFileName).currentRow += y_offset;
-		size_t length = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length();
 
-		if (length <= filesHashMap.at(currentFileName).currentColumn)
+		const size_t length = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length();
+		textFileInformation currText = filesHashMap.at(currentFileName);
+
+		if (length <= currText.currentColumn && currText.text.at(currText.currentRow).empty() == false)
 		{
-			size_t newStringLength = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length() - 1;
-			filesHashMap.at(currentFileName).currentColumn = newStringLength;
+			currText.currentColumn = currText.text.at(currText.currentRow).length() - 1;
 		}
 	}
 }
 
 void TextArea::MoveCursorToEnd(FontAndColors* color)
 {
-	size_t len = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length() - 2;
+	const size_t len = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length() - 1;
 	filesHashMap.at(currentFileName).currentColumn = len;
 }
 
 void TextArea::CursorFromRight(FontAndColors* color)
 {
-	if (filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow) != " ")
+	const textFileInformation currLines = filesHashMap.at(currentFileName);
+	if (size_t len = currLines.currentColumn; len < currLines.text.at(currLines.currentRow).length())
 	{
 		filesHashMap.at(currentFileName).currentColumn++;
 	}
@@ -270,7 +271,7 @@ void TextArea::CursorFromRight(FontAndColors* color)
 
 void TextArea::AppendAndMoveToLine()
 {
-	filesHashMap.at(currentFileName).text.insert(filesHashMap.at(currentFileName).text.begin() + filesHashMap.at(currentFileName).currentRow + 1, std::string(" "));
+	filesHashMap.at(currentFileName).text.insert(filesHashMap.at(currentFileName).text.begin() + filesHashMap.at(currentFileName).currentRow + 1, std::string(""));
 	filesHashMap.at(currentFileName).currentColumn = 0;
 	filesHashMap.at(currentFileName).currentRow++;
 }
@@ -295,7 +296,7 @@ void TextArea::CloseFile()
 {
 	filesHashMap.erase(currentFileName);
 
-	if (std::vector<std::string>::iterator it = std::find(activeFiles.begin(), activeFiles.end(), currentFileName); it != activeFiles.end())
+	if (const std::vector<std::string>::iterator it = std::find(activeFiles.begin(), activeFiles.end(), currentFileName); it != activeFiles.end())
 		activeFiles.erase(it);
 	
 	if (activeFiles.empty())
@@ -326,19 +327,15 @@ void TextArea::JumpToBuffer(const std::string& index)
 {
 	if (std::all_of(index.begin(), index.end(), ::isdigit) == true)
 	{
-		int jumpIndex = std::stoi(index);
+		const size_t jumpIndex = std::stoul(index);
 
 		if (jumpIndex >= 1 && jumpIndex <= activeFiles.size())
 		{
 			currentFileName = activeFiles.at(jumpIndex - 1);
 		}
 	}
-	else
+	else if(const std::vector<std::string>::iterator it = std::find(activeFiles.begin(), activeFiles.end(), index); it != activeFiles.end())
 	{
-		std::vector<std::string>::iterator it = std::find(activeFiles.begin(), activeFiles.end(), index);
-		if (it != activeFiles.end())
-		{
-			currentFileName = *it;
-		}
+		currentFileName = *it;
 	}
 }

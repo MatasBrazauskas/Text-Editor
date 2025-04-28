@@ -30,7 +30,7 @@ CommandLineArea::~CommandLineArea()
 	// Destructor implementation
 }
 
-void CommandLineArea::DisplayShellInput(SDL_Renderer* renderer, FontAndColors* color, int mode)
+void CommandLineArea::DisplayShellInput(SDL_Renderer* renderer, FontAndColors* color, const int mode)
 {
 	std::string commandLineMessage = "";
 
@@ -45,7 +45,7 @@ void CommandLineArea::DisplayShellInput(SDL_Renderer* renderer, FontAndColors* c
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	SDL_RenderFillRect(renderer, &rect);
 
-	if (commandLineMessage == "")
+	if (commandLineMessage.empty())
 	{
 		int x, y;
 		TTF_SizeUTF8(color->TTFont, currentCommand.c_str(), &x, &y);
@@ -85,7 +85,7 @@ void CommandLineArea::DisplayShellOutput(SDL_Renderer* renderer, FontAndColors* 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White border
 	SDL_RenderDrawRect(renderer, &rect);
 
-	std::optional<std::string> line = ExucuteAndDisplayCommand(textArea, closeWindow);
+	const std::optional<std::string> line = ExucuteAndDisplayCommand(textArea, closeWindow);
 
 	std::string item;
 	size_t YOffset = 25;
@@ -182,7 +182,6 @@ std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* t
 		}
 		else if(std::smatch match; std::regex_match(currentCommand, match, std::regex(R"(:e\s(.+(\.txt|\.cpp|\.h)))")) == true)
 		{
-			std::cout << match[1] << "|\n";
 			textArea->LoadOtherFile(match[1]);
 		}
 		else if (currentCommand.substr(0, 3) == ":bd")
@@ -199,7 +198,6 @@ std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* t
 		}
 		else if (std::smatch match; std::regex_match(currentCommand, match, std::regex(R"(:b\s+(\d|.+\.(txt|cpp)))")) == true)
 		{
-			std::cout << match[1] << '\n';
 			textArea->JumpToBuffer(match[1]);
 		}
 	}
