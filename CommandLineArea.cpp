@@ -180,9 +180,10 @@ std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* t
 		{
 			textArea->relativeLineNumbers = false;
 		}
-		else if(std::regex_match(currentCommand, std::regex(":e.+(\\.txt|\\.cpp)")) == true)
+		else if(std::smatch match; std::regex_match(currentCommand, match, std::regex(R"(:e\s(.+(\.txt|\.cpp|\.h)))")) == true)
 		{
-			textArea->LoadOtherFile(currentCommand.substr(3));
+			std::cout << match[1] << "|\n";
+			textArea->LoadOtherFile(match[1]);
 		}
 		else if (currentCommand.substr(0, 3) == ":bd")
 		{

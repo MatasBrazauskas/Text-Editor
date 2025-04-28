@@ -280,14 +280,14 @@ void TextArea::LoadOtherFile(const std::string& filesName)
 	if (std::filesystem::exists(filesName) == false)
 	{
 		return;
-	}	
+	}
 
+	currentFileName = filesName;
 	if (std::find(activeFiles.begin(), activeFiles.end(), filesName) == activeFiles.end())
 	{
 		activeFiles.push_back(filesName);
 		filesHashMap.insert( { filesName, textFileInformation() });
 		ReadCurrentFile();
-		currentFileName = filesName;
 	}
 }
 
