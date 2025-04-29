@@ -33,7 +33,7 @@ std::string TextArea::LineNumbers(size_t index)
 
 	if (relativeLineNumbers)
 	{
-		lineNumber = std::to_string(abs((int)index - (int)filesHashMap[currentFileName].currentRow));
+		lineNumber = std::to_string(abs((int)index - (int)filesHashMap[currentFileName].Row));
 	}
 	lineNumber.insert(0, 4 - lineNumber.length(), ' ');
 
@@ -98,7 +98,7 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 	{
 		std::string line = LineNumbers(i);
 
-		if ((showNumbers || relativeLineNumbers) && i == filesHashMap.at(currentFileName).currentRow)
+		if ((showNumbers || relativeLineNumbers) && i == filesHashMap.at(currentFileName).Row)
 		{
 			line = std::to_string(i + 1) + ' ';
 			line.insert(0, 4 - line.length(), ' ');
@@ -108,8 +108,7 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 
 		if (line.find((char)9) != std::string::npos)
 		{
-			line.replace(line.find(char(9)), 1, " ");
-			line.insert(5, 4, ' ');
+			line.replace(line.find(char(9)), 1, std::string(4,(char)129));
 		}
 
         SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, line.c_str(), colors->GetColor(FontAndColors::Colors::TEXT_COLOR));
@@ -136,7 +135,7 @@ void TextArea::ReadCurrentFile()
 	std::ifstream file(currentFileName);
 	std::string line;
 
-	filesHashMap.insert({ currentFileName, textFileInformation() });
+	filesHashMap.insert({ currentFileName, textFileInfo() });
 
 	while (std::getline(file, line))
 	{
@@ -155,13 +154,15 @@ void TextArea::WriteIntoCurrentFile()
 {
 	std::ofstream writer(currentFileName);
 	for(const auto& i : activeFiles)
-		std::for_each(filesHashMap.at(currentFileName).text.begin(), filesHashMap.at(currentFileName).text.end(), [&writer](const std::string& i) { writer << i << '\n'; });
+		std::for_each(filesHashMap.at(currentFileName).text.begin(), filesHashMap.at(currentFileName).text.end(), [&writer](const std::string& i) 
+			{ 
+				writer << i << '\n'; 
+			});
 	writer.close();
 }
 
 void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 {
-	std::println("{0}|", letter);
 	const char specialSymbols[] = {'\'', '\"', '{', '(', '['};
 	const char opp[] = {'\'', '\"', '}', ')', ']'};
 
@@ -170,33 +171,38 @@ void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 		size_t index = std::distance(specialSymbols, it);
 		letter.push_back(opp[index]);
 	}
-	std::println("Characters:");
-	for (const auto i : letter)
+	if (letter[0] == '\t')
 	{
-		std::println("{0}", int(i));
+		letter = std::string(4, (char)129) + '\n';
 	}
 
 	auto& it = filesHashMap.at(currentFileName);
-	it.text.at(it.currentRow).insert(it.text.at(it.currentRow).begin() + it.currentColumn, letter.begin(), letter.end() - 1);
+	it.text.at(it.Row).insert(it.text.at(it.Row).begin() + it.Col, letter.begin(), letter.end() - 1);
 	
-	std::println("{0}", letter[0] == char(9));
-	it.currentColumn+= (letter[0] == char(9)) ? 1 : 1;
+	it.Col += (letter == std::string(4, (char)129) + '\n') ? 4 : 1;
 }
 
 void TextArea::DeleteCurrentLetter(FontAndColors* color)
 {
-	if (filesHashMap.at(currentFileName).currentColumn > 0)
+	if (filesHashMap.at(currentFileName).Col > 0)
 	{
-		filesHashMap.at(currentFileName).currentColumn--;
-		filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).erase(filesHashMap.at(currentFileName).currentColumn, 1);
+		auto& currText = filesHashMap.at(currentFileName);
+		if (size_t it = currText.text.at(currText.Row).rfind(std::string(4, (char)129)); it != -1 && it + 4 == currText.Col)
+		{
+			currText.text.at(currText.Row).erase(it, 4);
+			currText.Col -= 4;
+			return;
+		}
+		currText.Col--;
+		currText.text.at(currText.Row).erase(currText.Col, 1);
 	}
-	else if (filesHashMap.at(currentFileName).currentColumn == 0 && filesHashMap.at(currentFileName).currentRow > 0)
+	else if (filesHashMap.at(currentFileName).Col == 0 && filesHashMap.at(currentFileName).Row > 0)
 	{
-		filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow - 1) += filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow);
-		filesHashMap.at(currentFileName).text.erase(filesHashMap.at(currentFileName).text.begin() + filesHashMap[currentFileName].currentRow);
+		filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).Row - 1) += filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].Row);
+		filesHashMap.at(currentFileName).text.erase(filesHashMap.at(currentFileName).text.begin() + filesHashMap[currentFileName].Row);
 
-		filesHashMap[currentFileName].currentRow--;
-		filesHashMap[currentFileName].currentColumn = filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].currentRow).length();
+		filesHashMap.at(currentFileName).Row--;
+		filesHashMap.at(currentFileName).Col = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).Row).length();
 	}
 }
 
@@ -213,14 +219,14 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, cons
 	{
 		for (size_t j = 0; j < length; j++)
 		{
-			SDL_RenderDrawPoint(renderer, starting_X + offTheEdgeX + (curr.currentColumn * charWidth) + j, starting_Y + offTheEdgeY + (curr.currentRow * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.currentRow) + i);
+			SDL_RenderDrawPoint(renderer, starting_X + offTheEdgeX + (curr.Col * charWidth) + j, starting_Y + offTheEdgeY + (curr.Row * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.Row) + i);
 		}
 	}
 
-	if (static_cast<bool>(displayMode & 0b1) == false && curr.currentColumn < curr.text.at(curr.currentRow).length())
+	if (static_cast<bool>(displayMode & 0b1) == false && curr.Col < curr.text.at(curr.Row).length())
 	{
-		char currentLetter = curr.text.empty() ? ' ' : curr.text.at(curr.currentRow).at(curr.currentColumn);
-		if (currentLetter != '\0' && currentLetter != ' ')
+		char currentLetter = curr.text.empty() ? ' ' : curr.text.at(curr.Row).at(curr.Col);
+		if (currentLetter != '\0' && currentLetter != ' ' && currentLetter != (char)129)
 		{
 			const char text[2] = { currentLetter, '\0' };
 			SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, text, colors->GetColor(FontAndColors::Colors::OPPOSITE_TEXT_COLOR));
@@ -228,7 +234,7 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, cons
 
 			if (surface)
 			{
-				SDL_Rect textRect = { (int)starting_X + offTheEdgeX + (curr.currentColumn * charWidth), starting_Y + offTheEdgeY + (curr.currentRow * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.currentRow), (int)surface->w, (int)surface->h };
+				SDL_Rect textRect = { (int)starting_X + offTheEdgeX + (curr.Col * charWidth), starting_Y + offTheEdgeY + (curr.Row * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.Row), (int)surface->w, (int)surface->h };
 
 				SDL_RenderCopy(renderer, texture, nullptr, &textRect);
 				SDL_FreeSurface(surface);
@@ -240,49 +246,49 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, cons
 
 void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_offset)
 {
-	const size_t currentLineLength = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length();
-	if (x_offset != 0 && filesHashMap.at(currentFileName).currentColumn + x_offset >= 0 && filesHashMap.at(currentFileName).currentColumn + x_offset < currentLineLength)
+	const size_t currentLineLength = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).Row).length();
+	if (x_offset != 0 && filesHashMap.at(currentFileName).Col + x_offset >= 0 && filesHashMap.at(currentFileName).Col + x_offset < currentLineLength)
 	{
-		filesHashMap.at(currentFileName).currentColumn += x_offset;
+		filesHashMap.at(currentFileName).Col += x_offset;
 	}
-	else if (y_offset != 0 && filesHashMap.at(currentFileName).currentRow + y_offset < filesHashMap.at(currentFileName).text.size() && filesHashMap.at(currentFileName).currentRow + y_offset >= 0)
+	else if (y_offset != 0 && filesHashMap.at(currentFileName).Row + y_offset < filesHashMap.at(currentFileName).text.size() && filesHashMap.at(currentFileName).Row + y_offset >= 0)
 	{
-		filesHashMap.at(currentFileName).currentRow += y_offset;
+		filesHashMap.at(currentFileName).Row += y_offset;
 
-		textFileInformation& currText = filesHashMap.at(currentFileName);
-		const size_t length = currText.text.at(currText.currentRow).length();
+		textFileInfo& currText = filesHashMap.at(currentFileName);
+		const size_t length = currText.text.at(currText.Row).length();
 
 		if (length == 0)
 		{
-			currText.currentColumn = 0;
+			currText.Col = 0;
 		}
-		else if (length < currText.currentColumn)
+		else if (length < currText.Col)
 		{
-			currText.currentColumn = length - 1;
+			currText.Col = length - 1;
 		}
 	}
 }
 
 void TextArea::MoveCursorToEnd(FontAndColors* color)
 {
-	const size_t len = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).length() - 1;
-	filesHashMap.at(currentFileName).currentColumn = len;
+	const size_t len = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).Row).length() - 1;
+	filesHashMap.at(currentFileName).Col = len;
 }
 
 void TextArea::CursorFromRight(FontAndColors* color)
 {
-	textFileInformation& currLines = filesHashMap.at(currentFileName);
-	if (size_t len = currLines.currentColumn; len < currLines.text.at(currLines.currentRow).length())
+	textFileInfo& currLines = filesHashMap.at(currentFileName);
+	if (size_t len = currLines.Col; len < currLines.text.at(currLines.Row).length())
 	{
-		currLines.currentColumn++;
+		currLines.Col++;
 	}
 }
 
 void TextArea::AppendAndMoveToLine()
 {
-	filesHashMap.at(currentFileName).text.insert(filesHashMap.at(currentFileName).text.begin() + filesHashMap.at(currentFileName).currentRow + 1, std::string(""));
-	filesHashMap.at(currentFileName).currentColumn = 0;
-	filesHashMap.at(currentFileName).currentRow++;
+	filesHashMap.at(currentFileName).text.insert(filesHashMap.at(currentFileName).text.begin() + filesHashMap.at(currentFileName).Row + 1, std::string(""));
+	filesHashMap.at(currentFileName).Col = 0;
+	filesHashMap.at(currentFileName).Row++;
 }
 
 void TextArea::LoadOtherFile(const std::string& filesName)
@@ -296,7 +302,7 @@ void TextArea::LoadOtherFile(const std::string& filesName)
 	if (std::find(activeFiles.begin(), activeFiles.end(), filesName) == activeFiles.end())
 	{
 		activeFiles.push_back(filesName);
-		filesHashMap.insert( { filesName, textFileInformation() });
+		filesHashMap.insert( { filesName, textFileInfo() });
 		ReadCurrentFile();
 	}
 }

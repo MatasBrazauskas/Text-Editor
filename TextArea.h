@@ -11,10 +11,10 @@ public:
 	TextArea(FontAndColors* color);
 	~TextArea();
 
-	struct textFileInformation
+	struct textFileInfo
 	{
-		size_t currentRow{};
-		size_t currentColumn{};
+		size_t Row{};
+		size_t Col{};
 		std::vector<std::string> text;
 	};
 
@@ -22,7 +22,7 @@ public:
 	std::string currentFileName = "";
 
 	std::vector<std::string> activeFiles; // maybe remove this
-	std::unordered_map<std::string, textFileInformation> filesHashMap;
+	std::unordered_map<std::string, textFileInfo> filesHashMap;
 
 	int charWidth, charHeight;
 
