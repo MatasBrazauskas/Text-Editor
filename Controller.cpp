@@ -1,5 +1,6 @@
 #include "Controller.h"
 #include <iostream>
+#include <print>
 
 Controller::Controller(SDL_Renderer* renderer)
 {
@@ -56,6 +57,11 @@ void Controller::DistributeCommands()
                 {
                     textArea->AppendAndMoveToLine();
                 }
+                else if (e.key.keysym.sym == SDLK_TAB)
+                {
+                    std::println("From insert key input");
+                    textArea->InsertNearTheCursor(fontAndColors, "\t");
+                }
                 break;
 
             case (int)mode::NORMAL:
@@ -91,10 +97,13 @@ void Controller::DistributeCommands()
                         textArea->MoveCursor(fontAndColors, -1, 0); // Move to left
                         break;
                     case SDLK_k:
-                        textArea->MoveCursor(fontAndColors, 0, -1); 
+                        textArea->MoveCursor(fontAndColors, 0, -1);
                         break;
                     case SDLK_j:
-                        textArea->MoveCursor(fontAndColors, 0, 1); 
+                        textArea->MoveCursor(fontAndColors, 0, 1);
+                        break;
+                    case SDLK_TAB:
+                        textArea->InsertNearTheCursor(fontAndColors, "    ");
                         break;
                     }
                 }
@@ -127,6 +136,7 @@ void Controller::DistributeCommands()
                     skipNextTextInput = false;
                     continue;
                 }
+                std::println("From insert text input");
                 textArea->InsertNearTheCursor(fontAndColors, e.text.text); // Get actual typed character
                 break;
 

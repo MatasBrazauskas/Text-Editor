@@ -107,9 +107,10 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 		line += filesHashMap.at(currentFileName).text.at(i);
 
 		if (line.find((char)9) != std::string::npos)
-			line.replace(line.find('\t'), 1, "    ");
-		if (line.find('\n') != std::string::npos)
-			line.replace(line.find('\n'), 1," ");
+		{
+			line.replace(line.find(char(9)), 1, " ");
+			line.insert(5, 4, ' ');
+		}
 
         SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, line.c_str(), colors->GetColor(FontAndColors::Colors::TEXT_COLOR));
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -160,19 +161,26 @@ void TextArea::WriteIntoCurrentFile()
 
 void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 {
-	const char specialSymbols[] = {'\'', '\"', '{', '(', '<', '['};
-	const char opp[] = {'\'', '\"', '}', ')', '>', ']'};
+	std::println("{0}|", letter);
+	const char specialSymbols[] = {'\'', '\"', '{', '(', '['};
+	const char opp[] = {'\'', '\"', '}', ')', ']'};
 
-	if (const auto it = std::find(specialSymbols, specialSymbols + 6, letter[0]); it != (specialSymbols + 6))
+	if (const char* it = std::find(specialSymbols, specialSymbols + 5, letter[0]); it != (specialSymbols + 6))
 	{
 		size_t index = std::distance(specialSymbols, it);
 		letter.push_back(opp[index]);
 	}
+	std::println("Characters:");
+	for (const auto i : letter)
+	{
+		std::println("{0}", int(i));
+	}
 
-	const auto start = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).begin();
-	filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).currentRow).insert(start + filesHashMap.at(currentFileName).currentColumn, letter.begin(), letter.end());
-
-	filesHashMap.at(currentFileName).currentColumn++;
+	auto& it = filesHashMap.at(currentFileName);
+	it.text.at(it.currentRow).insert(it.text.at(it.currentRow).begin() + it.currentColumn, letter.begin(), letter.end() - 1);
+	
+	std::println("{0}", letter[0] == char(9));
+	it.currentColumn+= (letter[0] == char(9)) ? 1 : 1;
 }
 
 void TextArea::DeleteCurrentLetter(FontAndColors* color)
@@ -198,7 +206,7 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, cons
 		return;
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	const auto curr = filesHashMap.at(currentFileName);
+	const auto& curr = filesHashMap.at(currentFileName);
 	const size_t length = static_cast<bool>(displayMode & 0b1) ? (int)Offsets::cursorWidth : charWidth;
 
 	for (size_t i = 0; i < charHeight; i++)
