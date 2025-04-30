@@ -102,9 +102,6 @@ void Controller::DistributeCommands()
                     case SDLK_j:
                         textArea->MoveCursor(fontAndColors, 0, 1);
                         break;
-                    case SDLK_TAB:
-                        textArea->InsertNearTheCursor(fontAndColors, "    ");
-                        break;
                     }
                 }
                 break;
@@ -136,8 +133,8 @@ void Controller::DistributeCommands()
                     skipNextTextInput = false;
                     continue;
                 }
-                std::println("From insert text input");
-                textArea->InsertNearTheCursor(fontAndColors, e.text.text); // Get actual typed character
+                std::println("From insert text input {0}|", std::string(1, e.text.text[0]));
+                textArea->InsertNearTheCursor(fontAndColors, std::string(1, e.text.text[0]));
                 break;
 
             case (int)mode::NORMAL:

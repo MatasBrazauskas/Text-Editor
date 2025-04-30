@@ -106,9 +106,9 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 
 		line += filesHashMap.at(currentFileName).text.at(i);
 
-		if (line.find((char)9) != std::string::npos)
+		if (auto it = line.find((char)9); it != std::string::npos)
 		{
-			line.replace(line.find(char(9)), 1, Tab);
+			line.replace(it, 1, Tab);
 		}
 
         SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, line.c_str(), colors->GetColor(FontAndColors::Colors::TEXT_COLOR));
@@ -163,23 +163,26 @@ void TextArea::WriteIntoCurrentFile()
 
 void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 {
+
+	std::println("New letter is {0}", letter);
+
 	const char specialSymbols[] = {'\'', '\"', '{', '(', '['};
 	const char opp[] = {'\'', '\"', '}', ')', ']'};
 
-	if (const char* it = std::find(specialSymbols, specialSymbols + 5, letter[0]); it != (specialSymbols + 6))
+	if (const char* it = std::find(specialSymbols, specialSymbols + 5, letter); it != (specialSymbols + 6))
 	{
 		size_t index = std::distance(specialSymbols, it);
 		letter.push_back(opp[index]);
 	}
-	if (letter[0] == '\t')
+	if (letter == "\t")
 	{
-		letter = Tab + '\n';
+		letter = Tab;
 	}
 
-	auto& it = filesHashMap.at(currentFileName);
-	it.text.at(it.Row).insert(it.text.at(it.Row).begin() + it.Col, letter.begin(), letter.end() - 1);
+	auto& currText = filesHashMap.at(currentFileName);
+	currText.text.at(currText.Row).insert(currText.text.at(currText.Row).begin() + currText.Col, letter.begin(), letter.end());
 	
-	it.Col += (letter == Tab + '\n') ? 4 : 1;
+	currText.Col += letter.length();
 }
 
 void TextArea::DeleteCurrentLetter(FontAndColors* color)
@@ -187,10 +190,10 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 	auto& currText = filesHashMap.at(currentFileName);
 	if (filesHashMap.at(currentFileName).Col > 0)
 	{
-		if (size_t it = currText.text.at(currText.Row).rfind(Tab); it != -1 && it + 4 == currText.Col)
+		if (size_t it = currText.text.at(currText.Row).rfind(Tab, currText.Col); it != -1 && it + Tab.length() == currText.Col)
 		{
-			currText.text.at(currText.Row).erase(it, 4);
-			currText.Col -= 4;
+			currText.text.at(currText.Row).erase(it, Tab.length());
+			currText.Col -= Tab.length();
 			return;
 		}
 		currText.Col--;
@@ -225,10 +228,9 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, cons
 
 	if (static_cast<bool>(displayMode & 0b1) == false && curr.Col < curr.text.at(curr.Row).length())
 	{
-		char currentLetter = curr.text.empty() ? ' ' : curr.text.at(curr.Row).at(curr.Col);
-		if (currentLetter != '\0' && currentLetter != ' ' && currentLetter != (char)129)
+		const char currentLetter = curr.text.empty() ? ' ' : curr.text.at(curr.Row).at(curr.Col);
+		if (currentLetter != '\0' && currentLetter != ' ' && (int)currentLetter >= 32 && (int)currentLetter <= 127)
 		{
-			//std::println("{}", currentLetter);
 			const char text[2] = { currentLetter, '\0' };
 			SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, text, colors->GetColor(FontAndColors::Colors::OPPOSITE_TEXT_COLOR));
 			SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -248,11 +250,24 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, cons
 void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_offset)
 {
 	auto& currText = filesHashMap.at(currentFileName);
-	const size_t currentLineLength = currText.text.at(currText.Row).length();
 
-	if (x_offset != 0 && currText.Col + x_offset >= 0 && currText.Col + x_offset < currentLineLength)
+	if (x_offset != 0 && currText.Col + x_offset >= 0 && currText.Col + x_offset < currText.text.at(currText.Row).length())
 	{
-		filesHashMap.at(currentFileName).Col += x_offset;
+		if (const size_t index = currText.text.at(currText.Row).rfind(Tab, currText.Col); index != std::string::npos)
+		{
+			if (index - 1 == currText.Col && x_offset == 1)
+			{
+				currText.Col += Tab.length() - 1;
+			}
+			else if (index)
+			{
+
+			}
+		}
+		else
+		{
+			currText.Col += x_offset;
+		}
 	}
 	else if (y_offset != 0 && currText.Row + y_offset < currText.text.size() && currText.Row + y_offset >= 0)
 	{
