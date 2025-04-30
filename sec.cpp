@@ -2,5 +2,11 @@
 
 int main(void)
 {
-    std::cout << "Hello, World!\n";
+    std::cout << "Hello, Steponas!\n";
+}
+#include <iostream> 
+
+int main(void)
+{
+    std::cout << "Hello, Steponas!\n";
 }

@@ -26,8 +26,8 @@ TextArea::~TextArea()
 
 std::string TextArea::LineNumbers(size_t index)
 {
-	if((showNumbers || relativeLineNumbers) == false)
-		return "    ";
+	if ((showNumbers || relativeLineNumbers) == false)
+		return std::string(4, ' ');
 
 	std::string lineNumber = std::to_string(index + 1);
 
@@ -108,7 +108,7 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 
 		if (line.find((char)9) != std::string::npos)
 		{
-			line.replace(line.find(char(9)), 1, std::string(4,(char)129));
+			line.replace(line.find(char(9)), 1, Tab);
 		}
 
         SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, line.c_str(), colors->GetColor(FontAndColors::Colors::TEXT_COLOR));
@@ -153,11 +153,11 @@ void TextArea::ReadCurrentFile()
 void TextArea::WriteIntoCurrentFile()
 {
 	std::ofstream writer(currentFileName);
-	for(const auto& i : activeFiles)
-		std::for_each(filesHashMap.at(currentFileName).text.begin(), filesHashMap.at(currentFileName).text.end(), [&writer](const std::string& i) 
-			{ 
-				writer << i << '\n'; 
-			});
+	for (const std::string& i : filesHashMap.at(currentFileName).text)
+	{
+		writer << i << '\n';
+		
+	}
 	writer.close();
 }
 
@@ -173,13 +173,13 @@ void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 	}
 	if (letter[0] == '\t')
 	{
-		letter = std::string(4, (char)129) + '\n';
+		letter = Tab + '\n';
 	}
 
 	auto& it = filesHashMap.at(currentFileName);
 	it.text.at(it.Row).insert(it.text.at(it.Row).begin() + it.Col, letter.begin(), letter.end() - 1);
 	
-	it.Col += (letter == std::string(4, (char)129) + '\n') ? 4 : 1;
+	it.Col += (letter == Tab + '\n') ? 4 : 1;
 }
 
 void TextArea::DeleteCurrentLetter(FontAndColors* color)
@@ -187,7 +187,7 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 	auto& currText = filesHashMap.at(currentFileName);
 	if (filesHashMap.at(currentFileName).Col > 0)
 	{
-		if (size_t it = currText.text.at(currText.Row).rfind(std::string(4, (char)129)); it != -1 && it + 4 == currText.Col)
+		if (size_t it = currText.text.at(currText.Row).rfind(Tab); it != -1 && it + 4 == currText.Col)
 		{
 			currText.text.at(currText.Row).erase(it, 4);
 			currText.Col -= 4;
@@ -228,6 +228,7 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, cons
 		char currentLetter = curr.text.empty() ? ' ' : curr.text.at(curr.Row).at(curr.Col);
 		if (currentLetter != '\0' && currentLetter != ' ' && currentLetter != (char)129)
 		{
+			//std::println("{}", currentLetter);
 			const char text[2] = { currentLetter, '\0' };
 			SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, text, colors->GetColor(FontAndColors::Colors::OPPOSITE_TEXT_COLOR));
 			SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);

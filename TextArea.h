@@ -21,12 +21,15 @@ public:
 	size_t starting_X, starting_Y, ending_X, ending_Y;
 	std::string currentFileName = "";
 
-	std::vector<std::string> activeFiles; // maybe remove this
+	std::vector<std::string> activeFiles;
 	std::unordered_map<std::string, textFileInfo> filesHashMap;
 
 	int charWidth, charHeight;
 
 	size_t offTheEdgeX, offTheEdgeY;
+
+	const size_t tabLen = 4;
+	const std::string Tab = std::string(tabLen, ' ');
 
 	enum class Offsets { pixelsBetweenLines = 2 , cursorWidth = 2};
 

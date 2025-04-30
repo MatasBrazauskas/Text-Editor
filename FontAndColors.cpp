@@ -7,7 +7,6 @@ FontAndColors::FontAndColors()
 	editorColors[2] = { 0,0,0,255 };
 
 	TTF_Init();
-	//TTFont = TTF_OpenFont("C:\\Users\\matas\\Desktop\\Roboto.ttf", CFontHeight);
 	TTFont = TTF_OpenFont("C:\\Users\\matas\\Desktop\\CONSOLA.TTF", CFontHeight);
 	filesAreaTTFont = TTF_OpenFont("C:\\Users\\matas\\Desktop\\CONSOLA.TTF", 16);
 }
