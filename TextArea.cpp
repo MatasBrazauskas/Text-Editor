@@ -184,9 +184,9 @@ void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 
 void TextArea::DeleteCurrentLetter(FontAndColors* color)
 {
+	auto& currText = filesHashMap.at(currentFileName);
 	if (filesHashMap.at(currentFileName).Col > 0)
 	{
-		auto& currText = filesHashMap.at(currentFileName);
 		if (size_t it = currText.text.at(currText.Row).rfind(std::string(4, (char)129)); it != -1 && it + 4 == currText.Col)
 		{
 			currText.text.at(currText.Row).erase(it, 4);
@@ -196,13 +196,13 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 		currText.Col--;
 		currText.text.at(currText.Row).erase(currText.Col, 1);
 	}
-	else if (filesHashMap.at(currentFileName).Col == 0 && filesHashMap.at(currentFileName).Row > 0)
+	else if (currText.Col == 0 && currText.Row > 0)
 	{
-		filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).Row - 1) += filesHashMap.at(currentFileName).text.at(filesHashMap[currentFileName].Row);
-		filesHashMap.at(currentFileName).text.erase(filesHashMap.at(currentFileName).text.begin() + filesHashMap[currentFileName].Row);
+		currText.text.at(currText.Row - 1) += currText.text.at(currText.Row);
+		currText.text.erase(currText.text.begin() + currText.Row);
 
-		filesHashMap.at(currentFileName).Row--;
-		filesHashMap.at(currentFileName).Col = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).Row).length();
+		currText.Row--;
+		currText.Col = currText.text.at(currText.Row).length();
 	}
 }
 
@@ -246,16 +246,16 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, cons
 
 void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_offset)
 {
-	const size_t currentLineLength = filesHashMap.at(currentFileName).text.at(filesHashMap.at(currentFileName).Row).length();
-	if (x_offset != 0 && filesHashMap.at(currentFileName).Col + x_offset >= 0 && filesHashMap.at(currentFileName).Col + x_offset < currentLineLength)
+	auto& currText = filesHashMap.at(currentFileName);
+	const size_t currentLineLength = currText.text.at(currText.Row).length();
+
+	if (x_offset != 0 && currText.Col + x_offset >= 0 && currText.Col + x_offset < currentLineLength)
 	{
 		filesHashMap.at(currentFileName).Col += x_offset;
 	}
-	else if (y_offset != 0 && filesHashMap.at(currentFileName).Row + y_offset < filesHashMap.at(currentFileName).text.size() && filesHashMap.at(currentFileName).Row + y_offset >= 0)
+	else if (y_offset != 0 && currText.Row + y_offset < currText.text.size() && currText.Row + y_offset >= 0)
 	{
-		filesHashMap.at(currentFileName).Row += y_offset;
-
-		textFileInfo& currText = filesHashMap.at(currentFileName);
+		currText.Row += y_offset;
 		const size_t length = currText.text.at(currText.Row).length();
 
 		if (length == 0)
@@ -278,7 +278,7 @@ void TextArea::MoveCursorToEnd(FontAndColors* color)
 void TextArea::CursorFromRight(FontAndColors* color)
 {
 	textFileInfo& currLines = filesHashMap.at(currentFileName);
-	if (size_t len = currLines.Col; len < currLines.text.at(currLines.Row).length())
+	if (const size_t len = currLines.Col; len < currLines.text.at(currLines.Row).length())
 	{
 		currLines.Col++;
 	}
