@@ -55,6 +55,15 @@ The Command Line Area is integrated with Vim commands, allowing you to perform a
 
 Feel free to explore the code, contribute, or fork the project to add more features! Enjoy using the editor! 😄
 
+---
+
+## *Current Focus* 🔧
+- **Error Support**: Implementing detailed error highlighting for better debugging.
+- **Expanding Vim Motions**: Adding more Vim-like features for smoother text navigation and editing.
+- **UI Clean-Up**: Refactoring the user interface to be more user-friendly and intuitive.
+- **Color Enhancements**: Making better use of colors to highlight errors, syntax, and commands for a visually appealing experience.
+
+---
 
 ![image](https://github.com/user-attachments/assets/0bb25e8c-c088-4e8e-928b-0dfd30f7b30a)
 
