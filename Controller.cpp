@@ -10,7 +10,6 @@ Controller::Controller(SDL_Renderer* renderer)
     textArea = new TextArea(fontAndColors);
     commandLineArea = new CommandLineArea();
 
-
     this->renderer = renderer;
 
 	errorArea->DisplayFileArea(renderer, fontAndColors);

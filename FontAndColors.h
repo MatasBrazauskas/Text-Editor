@@ -5,7 +5,7 @@ class FontAndColors
 {
 public:
 	FontAndColors();
-	~FontAndColors();
+	~FontAndColors() noexcept;
 
 	enum class Colors { BACKGROUND_AREA_COLOR, TEXT_COLOR, OPPOSITE_TEXT_COLOR };
 	SDL_Color GetColor(Colors color);

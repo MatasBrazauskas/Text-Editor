@@ -10,7 +10,7 @@ class CommandLineArea
 {
 public:
 	CommandLineArea();
-	~CommandLineArea();
+	~CommandLineArea() noexcept;
 
 	size_t starting_X, starting_Y, ending_X, ending_Y;
 	std::vector<std::string> commandLineMessage;

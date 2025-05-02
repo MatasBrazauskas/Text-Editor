@@ -9,7 +9,7 @@ class TextArea
 {
 public:
 	TextArea(FontAndColors* color);
-	~TextArea();
+	~TextArea() noexcept;
 
 	struct textFileInfo
 	{

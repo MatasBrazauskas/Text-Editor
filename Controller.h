@@ -10,7 +10,7 @@ class Controller
 {
 public:
 	Controller(SDL_Renderer* renderer);
-	~Controller();
+	~Controller() noexcept;
 
 	bool RunLoop();
 	void DistributeCommands();

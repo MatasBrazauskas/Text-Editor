@@ -320,6 +320,7 @@ void TextArea::CursorFromRight(FontAndColors* color)
 {
 	auto& currText = filesHashMap.at(currentFileName);
 	const size_t index = currText.text.at(currText.Row).find_first_not_of(' ', currText.Col);
+
 	if (index != std::string::npos && currText.text.at(currText.Row).at(currText.Col) == ' ' && index - currText.Col >= tabLen)
 	{
 		currText.Col--;
