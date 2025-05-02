@@ -33,7 +33,7 @@ std::string TextArea::LineNumbers(size_t index)
 
 	if (relativeLineNumbers)
 	{
-		lineNumber = std::to_string(abs((int)index - (int)filesHashMap[currentFileName].Row));
+		lineNumber = std::to_string(abs((int)(index - filesHashMap.at(currentFileName).Row)));
 	}
 	lineNumber.insert(0, 4 - lineNumber.length(), ' ');
 
@@ -163,13 +163,10 @@ void TextArea::WriteIntoCurrentFile()
 
 void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 {
-
-	std::println("New letter is {0}", letter);
-
 	const char specialSymbols[] = {'\'', '\"', '{', '(', '['};
 	const char opp[] = {'\'', '\"', '}', ')', ']'};
 
-	if (const char* it = std::find(specialSymbols, specialSymbols + 5, letter); it != (specialSymbols + 6))
+	if (const char* it = std::find(specialSymbols, specialSymbols + 5, letter[0]); it != (specialSymbols + 5))
 	{
 		size_t index = std::distance(specialSymbols, it);
 		letter.push_back(opp[index]);
@@ -253,20 +250,30 @@ void TextArea::MoveCursor(FontAndColors* color, const int x_offset, const int y_
 
 	if (x_offset != 0 && currText.Col + x_offset >= 0 && currText.Col + x_offset < currText.text.at(currText.Row).length())
 	{
-		if (const size_t index = currText.text.at(currText.Row).rfind(Tab, currText.Col); index != std::string::npos)
+		if (x_offset == 1)
 		{
-			if (index - 1 == currText.Col && x_offset == 1)
+			if (const size_t index = currText.text.at(currText.Row).find_first_not_of(' ', currText.Col + 1); index != std::string::npos && index - currText.Col - 1 >= tabLen)
 			{
-				currText.Col += Tab.length() - 1;
+				currText.Col = index - 1;
 			}
-			else if (index)
+			else
 			{
-
+				currText.Col++;
 			}
 		}
-		else
+		else if (x_offset == -1)
 		{
-			currText.Col += x_offset;
+			const std::string reversedStr(currText.text.at(currText.Row).rbegin(), currText.text.at(currText.Row).rend());
+			const size_t newCol = reversedStr.length() - 1 - currText.Col;
+
+			if (const size_t index = reversedStr.find_first_not_of(' ', newCol); index != std::string::npos && index - newCol >= tabLen)
+			{
+				currText.Col = reversedStr.length() - 1 - index;
+			}
+			else
+			{
+				currText.Col--;
+			}
 		}
 	}
 	else if (y_offset != 0 && currText.Row + y_offset < currText.text.size() && currText.Row + y_offset >= 0)

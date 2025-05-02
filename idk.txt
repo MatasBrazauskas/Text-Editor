@@ -1,1 +1,15 @@
-matas     
+#include <iostream>
+
+int main(void)
+{}
+
+m
+oo
+
+matas    matas
+
+
+
+
+
+
