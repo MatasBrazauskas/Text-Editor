@@ -212,20 +212,26 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, cons
 		return;
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	const auto& curr = filesHashMap.at(currentFileName);
+	auto& currText = filesHashMap.at(currentFileName);
 	const size_t length = static_cast<bool>(displayMode & 0b1) ? (int)Offsets::cursorWidth : charWidth;
+
+	const size_t index = currText.text.at(currText.Row).find_first_not_of(' ', currText.Col);
+	if (index != std::string::npos && currText.text.at(currText.Row).at(currText.Col) == ' ' && index - currText.Col >= tabLen && displayMode == 0)
+	{
+		currText.Col--;
+	}
 
 	for (size_t i = 0; i < charHeight; i++)
 	{
 		for (size_t j = 0; j < length; j++)
 		{
-			SDL_RenderDrawPoint(renderer, starting_X + offTheEdgeX + (curr.Col * charWidth) + j, starting_Y + offTheEdgeY + (curr.Row * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.Row) + i);
+			SDL_RenderDrawPoint(renderer, starting_X + offTheEdgeX + (currText.Col * charWidth) + j, starting_Y + offTheEdgeY + (currText.Row * charHeight) + ((int)Offsets::pixelsBetweenLines * currText.Row) + i);
 		}
 	}
 
-	if (static_cast<bool>(displayMode & 0b1) == false && curr.Col < curr.text.at(curr.Row).length())
+	if (static_cast<bool>(displayMode & 0b1) == false && currText.Col < currText.text.at(currText.Row).length())
 	{
-		const char currentLetter = curr.text.empty() ? ' ' : curr.text.at(curr.Row).at(curr.Col);
+		const char currentLetter = currText.text.empty() ? ' ' : currText.text.at(currText.Row).at(currText.Col);
 		if (currentLetter != '\0' && currentLetter != ' ' && (int)currentLetter >= 32 && (int)currentLetter <= 127)
 		{
 			const char text[2] = { currentLetter, '\0' };
@@ -234,7 +240,7 @@ void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, cons
 
 			if (surface)
 			{
-				SDL_Rect textRect = { (int)starting_X + offTheEdgeX + (curr.Col * charWidth), starting_Y + offTheEdgeY + (curr.Row * charHeight) + ((int)Offsets::pixelsBetweenLines * curr.Row), (int)surface->w, (int)surface->h };
+				SDL_Rect textRect = { (int)starting_X + offTheEdgeX + (currText.Col * charWidth), starting_Y + offTheEdgeY + (currText.Row * charHeight) + ((int)Offsets::pixelsBetweenLines * currText.Row), (int)surface->w, (int)surface->h };
 
 				SDL_RenderCopy(renderer, texture, nullptr, &textRect);
 				SDL_FreeSurface(surface);
@@ -298,12 +304,29 @@ void TextArea::MoveCursorToEnd(FontAndColors* color)
 	filesHashMap.at(currentFileName).Col = len;
 }
 
+void TextArea::CursorFromLeft(FontAndColors* color)
+{
+	auto& currText = filesHashMap.at(currentFileName);
+	const std::string reversedStr = std::string(currText.text.at(currText.Row).rbegin(), currText.text.at(currText.Row).rend());
+	const size_t newCol = reversedStr.length() - 1 - currText.Col;
+
+	if (const size_t index = reversedStr.find_first_not_of(' ', newCol); index != std::string::npos && currText.text.at(currText.Row).at(currText.Col) == ' ' && index - newCol >= tabLen)
+	{
+		currText.Col = reversedStr.length() - index;
+	}
+}
+
 void TextArea::CursorFromRight(FontAndColors* color)
 {
-	textFileInfo& currLines = filesHashMap.at(currentFileName);
-	if (const size_t len = currLines.Col; len < currLines.text.at(currLines.Row).length())
+	auto& currText = filesHashMap.at(currentFileName);
+	const size_t index = currText.text.at(currText.Row).find_first_not_of(' ', currText.Col);
+	if (index != std::string::npos && currText.text.at(currText.Row).at(currText.Col) == ' ' && index - currText.Col >= tabLen)
 	{
-		currLines.Col++;
+		currText.Col--;
+	}
+	else if (const size_t len = currText.Col; len < currText.text.at(currText.Row).length())
+	{
+		currText.Col++;
 	}
 }
 

@@ -51,6 +51,7 @@ public:
 	void MoveCursorToEnd(FontAndColors* color);
 
 	void AppendAndMoveToLine();
+	void CursorFromLeft(FontAndColors* color);
 	void CursorFromRight(FontAndColors* color);
 
 	void LoadOtherFile(const std::string& filesName);

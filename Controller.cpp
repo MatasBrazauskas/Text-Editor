@@ -24,7 +24,7 @@ Controller::~Controller()
 {
 
 }	
-
+// Reshape the structure of a mode and key mode placement -> mode then key mode.
 void Controller::DistributeCommands()
 {
     SDL_Event e;
@@ -59,7 +59,6 @@ void Controller::DistributeCommands()
                 }
                 else if (e.key.keysym.sym == SDLK_TAB)
                 {
-                    std::println("From insert key input");
                     textArea->InsertNearTheCursor(fontAndColors, "\t");
                 }
                 break;
@@ -75,6 +74,7 @@ void Controller::DistributeCommands()
                     {
                     case SDLK_i: // Switch to insert mode
                         currentMode = mode::INSERT;
+                        textArea->CursorFromLeft(fontAndColors);
                         skipNextTextInput = true;
                         break;
                     case SDLK_a:
@@ -133,7 +133,6 @@ void Controller::DistributeCommands()
                     skipNextTextInput = false;
                     continue;
                 }
-                std::println("From insert text input {0}|", std::string(1, e.text.text[0]));
                 textArea->InsertNearTheCursor(fontAndColors, std::string(1, e.text.text[0]));
                 break;
 
