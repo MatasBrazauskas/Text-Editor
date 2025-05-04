@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <string_view>
 
 class TextArea
 {
@@ -19,7 +20,12 @@ public:
 	};
 
 	size_t starting_X, starting_Y, ending_X, ending_Y;
-	std::string currentFileName = "";
+	const size_t tabLen = 4;
+	const std::string Tab = std::string(tabLen, ' ');
+	enum class Offsets { pixelsBetweenLines = 2, cursorWidth = 2 };
+	bool showNumbers = false, relativeLineNumbers = false;
+
+	std::string currentFileName;
 
 	std::vector<std::string> activeFiles;
 	std::unordered_map<std::string, textFileInfo> filesHashMap;
@@ -27,13 +33,6 @@ public:
 	int charWidth, charHeight;
 
 	size_t offTheEdgeX, offTheEdgeY;
-
-	const size_t tabLen = 4;
-	const std::string Tab = std::string(tabLen, ' ');
-
-	enum class Offsets { pixelsBetweenLines = 2 , cursorWidth = 2};
-
-	bool showNumbers = false, relativeLineNumbers = false;
 
 	std::string LineNumbers(size_t index);
 
@@ -58,5 +57,5 @@ public:
 	void CloseFile();
 
 	void ChangeCurrentFile(int index);
-	void JumpToBuffer(const std::string& index);
+	void JumpToBuffer(std::string_view index);
 };

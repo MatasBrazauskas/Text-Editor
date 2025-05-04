@@ -182,7 +182,7 @@ std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* t
 		}
 		else if(std::smatch match; std::regex_match(currentCommand, match, std::regex(R"(:e\s(.+(\.txt|\.cpp|\.h)))")) == true)
 		{
-			textArea->LoadOtherFile(match[1]);
+			textArea->LoadOtherFile(match[1].str());
 		}
 		else if (currentCommand.substr(0, 3) == ":bd")
 		{
@@ -198,7 +198,7 @@ std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* t
 		}
 		else if (std::smatch match; std::regex_match(currentCommand, match, std::regex(R"(:b\s+(\d|.+\.(txt|cpp)))")) == true)
 		{
-			textArea->JumpToBuffer(match[1]);
+			textArea->JumpToBuffer(std::string_view(match[1].str()));
 		}
 	}
 

@@ -42,18 +42,18 @@ std::string TextArea::LineNumbers(size_t index)
 
 void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 {
-    SDL_Rect rect = { (int)starting_X, (int)starting_Y, (int)(ending_X - starting_X), (int)(ending_Y - starting_Y) };
+	SDL_Rect rect = { (int)starting_X, (int)starting_Y, (int)(ending_X - starting_X), (int)(ending_Y - starting_Y) };
 	SDL_Color backgroundColor = colors->GetColor(FontAndColors::Colors::BACKGROUND_AREA_COLOR);
-    SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
-    SDL_RenderFillRect(renderer, &rect);
+	SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
+	SDL_RenderFillRect(renderer, &rect);
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderDrawRect(renderer, &rect);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_RenderDrawRect(renderer, &rect);
 
 	if (currentFileName.empty() == true)
 		return;
 
-    int yPos = 0;
+	int yPos = 0;
 
 	if (activeFiles.empty() == false)
 	{
@@ -69,8 +69,8 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 		for (const std::string& i : activeFiles)
 		{
 			TTF_SizeUTF8(colors->filesAreaTTFont, i.c_str(), &x, &y);
-			
-			SDL_Rect rec = { (int)starting_X + xOffset + 10, (int)starting_Y + 5, x, y};
+
+			SDL_Rect rec = { (int)starting_X + xOffset + 10, (int)starting_Y + 5, x, y };
 			SDL_RenderFillRect(renderer, &rec);
 
 			SDL_Surface* surface = TTF_RenderText_Blended(colors->filesAreaTTFont, i.c_str(), colors->GetColor(FontAndColors::Colors::OPPOSITE_TEXT_COLOR));
@@ -85,10 +85,10 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 			xOffset += x + 10;
 		}
 	}
-	
+
 	if (showNumbers || relativeLineNumbers)
 	{
-		SDL_Rect rec = { (int)starting_X, (int)starting_Y + offTheEdgeY, offTheEdgeX, (int)(ending_Y - starting_Y - 1 - offTheEdgeY)};
+		SDL_Rect rec = { (int)starting_X, (int)starting_Y + offTheEdgeY, offTheEdgeX, (int)(ending_Y - starting_Y - 1 - offTheEdgeY) };
 
 		SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
 		SDL_RenderFillRect(renderer, &rec);
@@ -111,20 +111,20 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 			line.replace(it, 1, Tab);
 		}
 
-        SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, line.c_str(), colors->GetColor(FontAndColors::Colors::TEXT_COLOR));
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+		SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, line.c_str(), colors->GetColor(FontAndColors::Colors::TEXT_COLOR));
+		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 
 		if (surface)
 		{
-			SDL_Rect textRect = { (int)starting_X, (int)starting_Y + offTheEdgeY + yPos, (int)surface->w, (int)surface->h};
+			SDL_Rect textRect = { (int)starting_X, (int)starting_Y + offTheEdgeY + yPos, (int)surface->w, (int)surface->h };
 
 			SDL_RenderCopy(renderer, texture, nullptr, &textRect);
 			SDL_FreeSurface(surface);
 		}
 		yPos += ((int)Offsets::pixelsBetweenLines + charHeight);
-    }
+	}
 
-    SDL_RenderPresent(renderer);
+	SDL_RenderPresent(renderer);
 }
 
 void TextArea::ReadCurrentFile()
@@ -156,15 +156,15 @@ void TextArea::WriteIntoCurrentFile()
 	for (const std::string& i : filesHashMap.at(currentFileName).text)
 	{
 		writer << i << '\n';
-		
+
 	}
 	writer.close();
 }
 
 void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 {
-	const char specialSymbols[] = {'\'', '\"', '{', '(', '['};
-	const char opp[] = {'\'', '\"', '}', ')', ']'};
+	const char specialSymbols[] = { '\'', '\"', '{', '(', '[' };
+	const char opp[] = { '\'', '\"', '}', ')', ']' };
 
 	if (const char* it = std::find(specialSymbols, specialSymbols + 5, letter[0]); it != (specialSymbols + 5))
 	{
@@ -178,7 +178,7 @@ void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 
 	auto& currText = filesHashMap.at(currentFileName);
 	currText.text.at(currText.Row).insert(currText.text.at(currText.Row).begin() + currText.Col, letter.begin(), letter.end());
-	
+
 	currText.Col += letter.length();
 }
 
@@ -206,7 +206,7 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 	}
 }
 
-void TextArea::DisplayCursor(SDL_Renderer *renderer, FontAndColors* colors, const int displayMode)
+void TextArea::DisplayCursor(SDL_Renderer* renderer, FontAndColors* colors, const int displayMode)
 {
 	if (currentFileName.empty() == true)
 		return;
@@ -346,10 +346,11 @@ void TextArea::LoadOtherFile(const std::string& filesName)
 	}
 
 	currentFileName = filesName;
+
 	if (std::find(activeFiles.begin(), activeFiles.end(), filesName) == activeFiles.end())
 	{
 		activeFiles.push_back(filesName);
-		filesHashMap.insert( { filesName, textFileInfo() });
+		filesHashMap.insert({ filesName, textFileInfo() });
 		ReadCurrentFile();
 	}
 }
@@ -360,11 +361,11 @@ void TextArea::CloseFile()
 
 	if (const std::vector<std::string>::iterator it = std::find(activeFiles.begin(), activeFiles.end(), currentFileName); it != activeFiles.end())
 		activeFiles.erase(it);
-	
+
 	if (activeFiles.empty())
 		offTheEdgeY = 10;
 
-	currentFileName = activeFiles.empty() == false ? activeFiles.at(activeFiles.size() - 1) : "";
+	currentFileName = activeFiles.empty() == false ? activeFiles.at(activeFiles.size() - 1) : std::string();
 }
 
 void TextArea::ChangeCurrentFile(int index)
@@ -385,18 +386,18 @@ void TextArea::ChangeCurrentFile(int index)
 	currentFileName = *it;
 }
 
-void TextArea::JumpToBuffer(const std::string& index)
+void TextArea::JumpToBuffer(std::string_view index)
 {
 	if (std::all_of(index.begin(), index.end(), ::isdigit) == true)
 	{
-		const size_t jumpIndex = std::stoul(index);
+		const size_t jumpIndex = std::stoul(index.data());
 
 		if (jumpIndex >= 1 && jumpIndex <= activeFiles.size())
 		{
 			currentFileName = activeFiles.at(jumpIndex - 1);
 		}
 	}
-	else if(const std::vector<std::string>::iterator it = std::find(activeFiles.begin(), activeFiles.end(), index); it != activeFiles.end())
+	else if (const std::vector<std::string>::iterator it = std::find(activeFiles.begin(), activeFiles.end(), index); it != activeFiles.end())
 	{
 		currentFileName = *it;
 	}
