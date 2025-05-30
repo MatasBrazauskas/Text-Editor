@@ -419,6 +419,18 @@ void TextArea::AppendAndCopyToLine()
 
 	currText.text.insert(currText.text.begin() + currText.Row + 1, std::string());
 	currText.text.at(currText.Row + 1).insert(0, currText.text.at(currText.Row), currText.Col, currText.text.at(currText.Row).length());
+<<<<<<< HEAD:src/TextArea.cpp
+=======
+	/*currText.Row++;
+	currText.Col = currText.text.at(currText.Row).length();*/
+
+	if (currText.Col < currText.text.at(currText.Row).length() && currText.text.at(currText.Row).at(currText.Col) == '}')
+	{
+		currText.Row++;
+		currText.text.insert(currText.text.begin() + currText.Row, std::string(" ", indentation + Tab.length()));
+	}
+
+>>>>>>> cd0dd1792114a8e47d0c88ea2a7a1819e374efcc:TextArea.cpp
 	currText.text.at(currText.Row).erase(currText.Col, currText.text.at(currText.Row).length());
 
 	currText.Col = 0;
