@@ -423,7 +423,7 @@ void TextArea::AppendAndCopyToLine()
 
 	currText.Col = 0;
 
-	if (currText.text.at(currText.Row ++).back() == '{')
+	if (currText.text.at(currText.Row).empty() == false && currText.text.at(currText.Row ++).back() == '{')
 	{
 		currText.text.insert(currText.text.begin() + currText.Row, std::string(" ", indentation + tabLen));
 		currText.Col = indentation + tabLen;

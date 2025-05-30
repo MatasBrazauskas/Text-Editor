@@ -72,7 +72,7 @@ void CommandLineArea::DisplayShellInput(SDL_Renderer* renderer, FontAndColors* c
 	SDL_RenderPresent(renderer);
 }
 
-void CommandLineArea::DisplayShellOutput(SDL_Renderer* renderer, FontAndColors* color, TextArea* textArea, bool& closeWindow)
+void CommandLineArea::DisplayShellOutput(SDL_Renderer* renderer, FontAndColors* color, TextArea* textArea, bool& closeWindow, ThreadPool* pool)
 {
 	SDL_Rect rect = { (int)starting_X, (int)starting_Y + 20, (int)(ending_X - starting_X), (int)(ending_Y - starting_Y - 20) };
 	SDL_SetRenderDrawColor(renderer,
@@ -85,7 +85,7 @@ void CommandLineArea::DisplayShellOutput(SDL_Renderer* renderer, FontAndColors* 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White border
 	SDL_RenderDrawRect(renderer, &rect);
 
-	const std::optional<std::string> line = ExucuteAndDisplayCommand(textArea, closeWindow);
+	const std::optional<std::string> line = ExucuteAndDisplayCommand(textArea, pool, closeWindow);
 
 	std::string item;
 	size_t YOffset = 25;
@@ -123,7 +123,7 @@ void CommandLineArea::DeleteToCommand()
 		currentCommand.pop_back();
 }
 
-std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, bool& closeWindows)
+std::optional<std::string> CommandLineArea::ExucuteAndDisplayCommand(TextArea* textArea, ThreadPool* pool, bool& closeWindows)
 {
 	if(std::regex_match(currentCommand, std::regex(":!.*")) == true)
 	{

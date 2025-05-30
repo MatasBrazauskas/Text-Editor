@@ -11,12 +11,13 @@ Controller::Controller(SDL_Renderer* renderer)
     commandLineArea = new CommandLineArea();
 
     this->renderer = renderer;
+    pool = new ThreadPool(2);
 
 	errorArea->DisplayFileArea(renderer, fontAndColors);
     fileArea->DisplayFileArea(renderer, fontAndColors);
     textArea->DisplayTextArea(renderer, fontAndColors);
     commandLineArea->DisplayShellInput(renderer, fontAndColors, (int)currentMode);
-    commandLineArea->DisplayShellOutput(renderer, fontAndColors, textArea, runLoop);
+    commandLineArea->DisplayShellOutput(renderer, fontAndColors, textArea, runLoop, pool);
 }
 
 Controller::~Controller()
@@ -118,7 +119,7 @@ void Controller::DistributeCommands()
 					displayCommandLine = true;
                     updateTextArea = true;
 					fileArea->DisplayFileArea(renderer, fontAndColors);
-                    commandLineArea->DisplayShellOutput(renderer, fontAndColors, textArea, runLoop);
+                    commandLineArea->DisplayShellOutput(renderer, fontAndColors, textArea, runLoop, pool);
                     commandLineArea->DisplayShellInput(renderer, fontAndColors, (int)currentMode);
                 }
                 break;

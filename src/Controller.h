@@ -4,6 +4,7 @@
 #include "FileArea.h"
 #include "TextArea.h"
 #include "CommandLineArea.h"
+#include "ThreadPool.h"
 
 class Controller
 {
@@ -25,6 +26,7 @@ public:
 	ErrorArea* errorArea = nullptr;
 	FileArea* fileArea = nullptr;
 	TextArea* textArea = nullptr;
+	ThreadPool* pool = nullptr;
 	FontAndColors* fontAndColors = nullptr;
 	CommandLineArea* commandLineArea = nullptr;
 };
