@@ -417,7 +417,7 @@ void TextArea::AppendAndCopyToLine()
 	if (currText.Col < currText.text.at(currText.Row).length() && currText.text.at(currText.Row).at(currText.Col) == '}')
 	{
 		currText.Row++;
-		currText.text.insert(currText.text.begin() + currText.Row, std::string(""));
+		currText.text.insert(currText.text.begin() + currText.Row, std::string(" ", indentation + Tab.length()));
 	}
 
 	currText.text.at(currText.Row).erase(currText.Col, currText.text.at(currText.Row).length());
