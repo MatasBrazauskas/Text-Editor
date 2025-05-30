@@ -179,12 +179,13 @@ void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 	auto& currText = filesHashMap.at(currentFileName);
 	currText.text.at(currText.Row).insert(currText.text.at(currText.Row).begin() + currText.Col, letter.begin(), letter.end());
 
-	currText.Col += letter.length();
+	currText.Col++;
 }
 
 void TextArea::DeleteCurrentLetter(FontAndColors* color)
 {
 	auto& currText = filesHashMap.at(currentFileName);
+
 	if (filesHashMap.at(currentFileName).Col > 0)
 	{
 		if (size_t it = currText.text.at(currText.Row).rfind(Tab, currText.Col); it != -1 && it + Tab.length() == currText.Col)
@@ -198,11 +199,11 @@ void TextArea::DeleteCurrentLetter(FontAndColors* color)
 	}
 	else if (currText.Col == 0 && currText.Row > 0)
 	{
+		currText.Col = currText.text.at(currText.Row - 1).length();
 		currText.text.at(currText.Row - 1) += currText.text.at(currText.Row);
 		currText.text.erase(currText.text.begin() + currText.Row);
 
 		currText.Row--;
-		currText.Col = currText.text.at(currText.Row).length();
 	}
 }
 
@@ -401,4 +402,25 @@ void TextArea::JumpToBuffer(std::string_view index)
 	{
 		currentFileName = *it;
 	}
+}
+
+void TextArea::AppendAndCopyToLine()
+{
+	//const size_t indentation = filesHashMap.at(currentFileName).Col;
+	auto& currText = filesHashMap.at(currentFileName);
+
+	currText.text.insert(currText.text.begin() + currText.Row + 1, std::string());
+	currText.text.at(currText.Row + 1).insert(0, currText.text.at(currText.Row), currText.Col, currText.text.at(currText.Row).length());
+	/*currText.Row++;
+	currText.Col = currText.text.at(currText.Row).length();*/
+
+	if (currText.Col < currText.text.at(currText.Row).length() && currText.text.at(currText.Row).at(currText.Col) == '}')
+	{
+		currText.Row++;
+		currText.text.insert(currText.text.begin() + currText.Row, std::string(""));
+	}
+
+	currText.text.at(currText.Row).erase(currText.Col, currText.text.at(currText.Row).length());
+	currText.Row++;
+	currText.Col = 0;
 }

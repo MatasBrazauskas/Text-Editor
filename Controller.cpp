@@ -54,7 +54,8 @@ void Controller::DistributeCommands()
                 }
                 else if (e.key.keysym.sym == SDLK_RETURN)
                 {
-                    textArea->AppendAndMoveToLine();
+                    //textArea->AppendAndMoveToLine();
+					textArea->AppendAndCopyToLine();
                 }
                 else if (e.key.keysym.sym == SDLK_TAB)
                 {

@@ -50,6 +50,8 @@ public:
 	void MoveCursorToEnd(FontAndColors* color);
 
 	void AppendAndMoveToLine();
+	void AppendAndCopyToLine();
+
 	void CursorFromLeft(FontAndColors* color);
 	void CursorFromRight(FontAndColors* color);
 

@@ -1,12 +1,10 @@
 #include <iostream>
 
-int main(void)
-{}
-
-m
-oo
-
-matas    matas
+int main()
+{
+    int a = 10;
+    std::cout << a ; 
+}
 
 
 
