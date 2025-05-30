@@ -132,13 +132,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\TextEditor\ThreadPool.cpp" />
     <ClCompile Include="src\CommandLineArea.cpp" />
     <ClCompile Include="src\Controller.cpp" />
     <ClCompile Include="src\ErrorArea.cpp" />
     <ClCompile Include="src\FileArea.cpp" />
     <ClCompile Include="src\FontAndColors.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\ThreadPool.cpp" />
     <ClCompile Include="TextArea.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -149,7 +149,6 @@
     <None Include="SDL2_ttf.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\TextEditor\ThreadPool.h" />
     <ClInclude Include="CommandLineArea.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="ErrorArea.h" />
@@ -161,6 +160,7 @@
     <ClInclude Include="src\FileArea.h" />
     <ClInclude Include="src\FontAndColors.h" />
     <ClInclude Include="src\TextArea.h" />
+    <ClInclude Include="src\ThreadPool.h" />
     <ClInclude Include="TextArea.h" />
   </ItemGroup>
   <ItemGroup>
