@@ -5,6 +5,7 @@
 #include <cmath>
 #include <print>
 #include <filesystem>
+#include <array>
 
 TextArea::TextArea(FontAndColors* color)
 {
@@ -106,22 +107,29 @@ void TextArea::DisplayTextArea(SDL_Renderer* renderer, FontAndColors* colors)
 
 		line += filesHashMap.at(currentFileName).text.at(i);
 
-		if (auto it = line.find((char)9); it != std::string::npos)
+		if(const auto it = line.find((char)9); it != std::string::npos)
 		{
 			line.replace(it, 1, Tab);
 		}
+		//std::println("|{0}|", line);
+		
 
 		SDL_Surface* surface = TTF_RenderText_Blended(colors->TTFont, line.c_str(), colors->GetColor(FontAndColors::Colors::TEXT_COLOR));
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 
 		if (surface)
 		{
+			if (i == filesHashMap.at(currentFileName).Row)
+			{
+				std::println("|{0}|", line.c_str());
+				std::println("|{0}|", line);
+			}
 			SDL_Rect textRect = { (int)starting_X, (int)starting_Y + offTheEdgeY + yPos, (int)surface->w, (int)surface->h };
 
 			SDL_RenderCopy(renderer, texture, nullptr, &textRect);
 			SDL_FreeSurface(surface);
 		}
-		yPos += ((int)Offsets::pixelsBetweenLines + charHeight);
+		yPos += (static_cast<int>(Offsets::pixelsBetweenLines) + charHeight);
 	}
 
 	SDL_RenderPresent(renderer);
@@ -163,12 +171,12 @@ void TextArea::WriteIntoCurrentFile()
 
 void TextArea::InsertNearTheCursor(FontAndColors* color, std::string letter)
 {
-	const char specialSymbols[] = { '\'', '\"', '{', '(', '[' };
-	const char opp[] = { '\'', '\"', '}', ')', ']' };
+	const std::array<char, 5> specialSymbols = { '\'', '\"', '{', '(', '[' };
+	const std::array<char, 5> opp = { '\'', '\"', '}', ')', ']' };
 
-	if (const char* it = std::find(specialSymbols, specialSymbols + 5, letter[0]); it != (specialSymbols + 5))
+	if (const std::array<char,5>::const_iterator it = std::find(specialSymbols.cbegin(), specialSymbols.cend(), letter[0]); it != (specialSymbols.cend()))
 	{
-		size_t index = std::distance(specialSymbols, it);
+		size_t index = std::distance(specialSymbols.cbegin(), it);
 		letter.push_back(opp[index]);
 	}
 	if (letter == "\t")
@@ -406,21 +414,18 @@ void TextArea::JumpToBuffer(std::string_view index)
 
 void TextArea::AppendAndCopyToLine()
 {
-	//const size_t indentation = filesHashMap.at(currentFileName).Col;
 	auto& currText = filesHashMap.at(currentFileName);
+	const size_t indentation = currText.text.at(currText.Row).find_first_not_of(' ');
 
 	currText.text.insert(currText.text.begin() + currText.Row + 1, std::string());
 	currText.text.at(currText.Row + 1).insert(0, currText.text.at(currText.Row), currText.Col, currText.text.at(currText.Row).length());
-	/*currText.Row++;
-	currText.Col = currText.text.at(currText.Row).length();*/
-
-	if (currText.Col < currText.text.at(currText.Row).length() && currText.text.at(currText.Row).at(currText.Col) == '}')
-	{
-		currText.Row++;
-		currText.text.insert(currText.text.begin() + currText.Row, std::string(""));
-	}
-
 	currText.text.at(currText.Row).erase(currText.Col, currText.text.at(currText.Row).length());
-	currText.Row++;
+
 	currText.Col = 0;
+
+	if (currText.text.at(currText.Row ++).back() == '{')
+	{
+		currText.text.insert(currText.text.begin() + currText.Row, std::string(" ", indentation + tabLen));
+		currText.Col = indentation + tabLen;
+	}
 }

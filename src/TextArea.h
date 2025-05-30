@@ -23,7 +23,7 @@ public:
 	const size_t tabLen = 4;
 	const std::string Tab = std::string(tabLen, ' ');
 	enum class Offsets { pixelsBetweenLines = 2, cursorWidth = 2 };
-	bool showNumbers = false, relativeLineNumbers = false;
+	bool showNumbers = false, relativeLineNumbers = true;
 
 	std::string currentFileName;
 
